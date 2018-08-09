@@ -1,0 +1,8 @@
+http:
+  client:
+    connectionRequestTimeout: 500
+    connectTimeout: 50000
+    socketTimeout: 30000
+    staleConnectionCheckEnabled: true
+    maxTotal: 100
+    defaultMaxPerRoute: 100
