@@ -48,7 +48,7 @@ public class HttpClientService {
      * @param httpMethod httpMethod
      * @return HttpResult
      */
-    private HttpResult execute(HttpRequestBase httpMethod) {
+    public HttpResult execute(HttpRequestBase httpMethod) {
         HttpResult result = null;
         LOGGER.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
         try {

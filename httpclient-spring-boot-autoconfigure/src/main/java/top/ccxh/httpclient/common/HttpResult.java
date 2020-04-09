@@ -5,12 +5,13 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.util.StringUtils;
-import sun.nio.ch.IOUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.Serializable;
 
+/**
+ * http统一返回结果集
+ */
 public class HttpResult implements Closeable {
     private Integer httpStatus;
     private CloseableHttpResponse response;
