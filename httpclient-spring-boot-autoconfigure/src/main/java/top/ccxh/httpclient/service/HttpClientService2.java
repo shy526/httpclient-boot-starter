@@ -1,33 +1,26 @@
 package top.ccxh.httpclient.service;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.ccxh.httpclient.service.task.HttpErrorTask;
-import top.ccxh.httpclient.service.task.HttpSucceedTask;
-import top.ccxh.httpclient.service.task.impl.DefaultErrorTask;
-import top.ccxh.httpclient.service.task.impl.RetunStringTask;
-import java.io.Closeable;
+import top.ccxh.httpclient.common.HttpResult;
+
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class HttpClientService2 {
-    private static  final Logger LOGGER=LoggerFactory.getLogger(HttpClientService2.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService2.class);
     private CloseableHttpClient httpClient;
 
     private RequestConfig requestConfig;
@@ -40,208 +33,216 @@ public class HttpClientService2 {
     /**
      * 执行提交
      *
-     * @param httpMethod
-     * @return
+     * @param httpMethod httpMethod
+     * @return HttpResult
      */
-    private Object execute(HttpRequestBase httpMethod, HttpErrorTask errorTask, HttpSucceedTask succeedTask) {
-        CloseableHttpResponse response = null;
-        HttpEntity entity = null;
-        Integer statusCode = null;
-        LOGGER.debug("执行{}请求，URL = {}",httpMethod.getMethod(),httpMethod.getURI());
-        // 执行请求
+    private HttpResult execute(HttpRequestBase httpMethod) {
+        HttpResult result = new HttpResult();
+        LOGGER.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
         try {
-            response = httpClient.execute(httpMethod);
-            // 判断返回状态是否为200
-             statusCode = response.getStatusLine().getStatusCode();
-            if ( statusCode== HttpStatus.SC_OK) {
-                entity = response.getEntity();
-                if (entity==null) {
-                      LOGGER.error("entiyt is null");
-                }
-                return  succeedTask.run(entity);
-            }
+            CloseableHttpResponse response = httpClient.execute(httpMethod);
+            result.setResponse(response);
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            consumeEntity(entity);
-            closeIO(response);
+            LOGGER.error(e.getMessage(), e);
         }
-          LOGGER.info("HttpStatus is {}",statusCode);
-        return   errorTask.run(statusCode);
+        return result;
     }
 
-
     /**
-     * 默认处理方式
-     * @param httpMethod
-     * @return
-     */
-    private  String executeDefault(HttpRequestBase httpMethod){
-       return (String) execute(httpMethod,new DefaultErrorTask(),new RetunStringTask());
-    }
-
-
-    /**
-     * 消费entity
+     * url参数贬值
      *
-     * @param entity
+     * @param url    url
+     * @param params params
+     * @return String
      */
-    private void consumeEntity(HttpEntity entity) {
-        if (entity != null) {
-            try {
-                EntityUtils.consume(entity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                entity = null;
-            }
-        }
-    }
-
-    /**
-     * 关闭输入输出流
-     * @param response
-     */
-    private void closeIO(Closeable response) {
-        if (response != null) {
-            try {
-                response.close();
-            } catch (IOException e) {
-            } finally {
-                response = null;
-            }
-        }
-    }
-
-
-    /**
-     * 执行 get请求
-     * @param url url
-     * @param params 参数
-     * @param header  请求头
-     * @param encode 编码方式
-     * @return
-     * @throws Exception
-     */
-    public String doGet(String url, Map<String, String> params, Map<String, String> header, String encode) throws Exception {
+    public String buildUrlParams(String url, Map<String, String> params) {
         if (null != params) {
-            URIBuilder builder = new URIBuilder(url);
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                builder.setParameter(entry.getKey(), entry.getValue());
+            URIBuilder builder = null;
+            try {
+                builder = new URIBuilder(url);
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    builder.setParameter(entry.getKey(), entry.getValue());
+                }
+                url = builder.build().toString();
+            } catch (URISyntaxException e) {
+                LOGGER.error(e.getMessage(), e);
             }
-            url = builder.build().toString();
+
         }
-        // 创建http GET请求
-        HttpGet httpGet = new HttpGet(url);
-        httpSetHeader(header, httpGet);
-        httpGet.setConfig(requestConfig);
-        return executeDefault(httpGet);
+        return url;
     }
 
-    private void httpSetHeader(Map<String, String> header, HttpRequestBase httpGet) {
+
+    /**
+     * 设置请求头
+     *
+     * @param header  请求头
+     * @param request request
+     */
+    public HttpRequestBase httpSetHeader(Map<String, String> header, HttpRequestBase request) {
         if (null != header) {
             for (Map.Entry<String, String> entry : header.entrySet()) {
-                httpGet.setHeader(entry.getKey(), entry.getValue());
+                request.setHeader(entry.getKey(), entry.getValue());
             }
         }
+        return request;
     }
 
     /**
-     * 执行 get请求
-     * @param url
-     * @return
-     * @throws Exception
+     * 生成表单
+     *
+     * @param format 参数
+     * @param encode 字符编码
+     * @return StringEntity
      */
-    public String doGet(String url) throws Exception {
-        return this.doGet(url, null, null, null);
+    public HttpRequestBase httpSetFormat(Map<String, String> format, String encode, HttpEntityEnclosingRequestBase requestBase) {
+        UrlEncodedFormEntity result = null;
+        try {
+            if (format != null) {
+                List<NameValuePair> parameters = new ArrayList<NameValuePair>(0);
+                for (Map.Entry<String, String> entry : format.entrySet()) {
+                    parameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+                }
+                if (encode != null) {
+                    result = new UrlEncodedFormEntity(parameters, encode);
+                } else {
+                    result = new UrlEncodedFormEntity(parameters);
+                }
+            }
+            requestBase.setEntity(result);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
+        return requestBase;
     }
 
+
     /**
-     * 执行 get请求
-     * @param url url
-     * @param header 头文件 键值对
-     * @return
-     * @throws Exception
+     * 生成使用代理的设置代理
+     *
+     * @param hostName 代理主机名
+     * @param port     代理端口
+     * @return Message
      */
-    public String doGetHaeader(String url, Map<String, String> header) throws Exception {
-        return this.doGet(url, null, header, null);
+    public HttpRequestBase buildProxy(String hostName, Integer port, HttpRequestBase httpRequestBase) {
+        HttpHost proxy = new HttpHost(hostName, port);
+        RequestConfig requestConfig = RequestConfig.custom().setProxy(proxy).build();
+        httpRequestBase.setConfig(requestConfig);
+        return httpRequestBase;
     }
 
     /**
-     * 带参数的get请求
+     * 设置 requestConfig
+     *
+     * @param httpRequestBase 请求
+     * @return httpRequestBase
+     */
+    public HttpRequestBase httpSetRequestConfig(HttpRequestBase httpRequestBase) {
+        httpRequestBase.setConfig(requestConfig);
+        return httpRequestBase;
+    }
+
+
+    public HttpRequestBase buildGet(String url, Map<String, String> params, Map<String, String> header) {
+        url = this.buildUrlParams(url, params);
+        HttpGet httpGet = new HttpGet(url);
+        return httpSetRequestConfig(httpGet);
+    }
+
+    /**
+     * get请求
+     *
+     * @param url    url
+     * @param params 参数
+     * @param header 请求头
+     * @return HttpResult
+     */
+    public HttpResult get(String url, Map<String, String> params, Map<String, String> header) {
+        return this.execute(httpSetHeader(header, buildGet(url, params, header)));
+    }
+
+    /**
+     * get请求
+     *
+     * @param url    url
+     * @param params 参数
+     * @return HttpResult
+     */
+    public HttpResult get(String url, Map<String, String> params) {
+        return this.get(url, params, null);
+    }
+
+    /**
+     * get请求
      *
      * @param url url
-     * @param params 参数
-     * @return
-     * @throws Exception
+     * @return HttpResult
      */
-    public String doGet(String url, Map<String, String> params) throws Exception {
-        return this.doGet(url, params, null, null);
+    public HttpResult get(String url) {
+        return this.get(url, null, null);
+    }
+
+
+    public HttpRequestBase buildPost(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
+        HttpPost httpPost = new HttpPost(buildUrlParams(url, params));
+        return httpSetRequestConfig(httpSetHeader(header,httpSetFormat(format, encode,httpPost)));
+
     }
 
     /**
      * 执行POST请求
-     *
-     * @param url url
+     * @param url    url
      * @param params 表单参数
-     * @param encode
-     * @param header
-     * @return
-     * @throws Exception
+     * @param header 请求头
+     * @param format 表单
+     * @param encode 表单编码
+     * @return HttpResult
      */
-    public String doPost(String url, Map<String, String> params, String encode,Map<String, String> header)  {
-        // 创建http POST请求
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.setConfig(requestConfig);
-        httpSetHeader(header, httpPost);
-        setFormEntity(params, encode, httpPost);
-        return executeDefault(httpPost);
+    public HttpResult post(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
+        return execute(buildPost(url, params, header, format, encode));
     }
 
     /**
-     *
-     * @param params
-     * @param encode
-     * @param httpPost
+     * 执行POST请求
+     * @param url    url
+     * @param params 表单参数
+     * @param header 请求头
+     * @return HttpResult
      */
-    private void setFormEntity(Map<String, String> params, String encode, HttpPost httpPost)   {
-        try {
-            if (null != params) {
-                // 设置2个post参数，一个是scope、一个是q
-                List<NameValuePair> parameters = new ArrayList<NameValuePair>(0);
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    parameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-                }
-                // 构造一个form表单式的实体
-                UrlEncodedFormEntity formEntity = null;
-                if (encode != null) {
-                    formEntity = new UrlEncodedFormEntity(parameters, encode);
-                } else {
-                    formEntity = new UrlEncodedFormEntity(parameters);
-                }
-                // 将请求实体设置到httpPost对象中
-                httpPost.setEntity(formEntity);
-            }
-        }catch (Exception e){
-
-        }
-
+    public HttpResult post(String url, Map<String, String> params, Map<String, String> header) {
+        return post(url, params, header, null, null);
     }
 
     /**
-     * 使用代理
-     * @param hostName  代理主机名
-     * @param port   代理端口
-     * @param url  访问的url
-     * @return
+     * 执行POST请求
+     * @param url    url
+     * @param header 请求头
+     * @param format 表单
+     * @param encode 表单编码
+     * @return HttpResult
      */
-    public String proxyGet(String hostName,Integer port,String url){
-        HttpGet httpGet = new HttpGet(url);
-        HttpHost proxy=new HttpHost(hostName, port);
-        RequestConfig requestConfig=RequestConfig.custom().setProxy(proxy).build();
-        httpGet.setConfig(requestConfig);
-        CloseableHttpResponse response = null;
-        return executeDefault(httpGet);
+    public HttpResult post(String url, Map<String, String> header, Map<String, String> format, String encode) {
+        return post(url, null, header, format, encode);
     }
+
+    /**
+     * 执行POST请求
+     * @param url    url
+     * @return HttpResult
+     */
+    public HttpResult post(String url, Map<String, String> params) {
+        return post(url, params, null, null, null);
+    }
+
+    /**
+     * 执行POST请求
+     * @param url    url
+     * @return HttpResult
+     */
+    public HttpResult post(String url) {
+        return post(url, null, null, null, null);
+    }
+
 
 }
