@@ -14,7 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.ccxh.httpclient.service.HttpClientService;
+import top.ccxh.httpclient.service.HttpClientService3;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -129,8 +129,8 @@ public class HttpClientAutoConfiguration {
     }
 
     @Bean
-    public HttpClientService getHttpClientService(@Qualifier("closeableHttpClient")CloseableHttpClient httpClient, @Qualifier("requestConfig") RequestConfig requestConfig){
-        return new HttpClientService(httpClient,requestConfig);
+    public HttpClientService3 getHttpClientService(@Qualifier("closeableHttpClient")CloseableHttpClient httpClient, @Qualifier("requestConfig") RequestConfig requestConfig){
+        return new HttpClientService3(httpClient,requestConfig);
     }
 
 
