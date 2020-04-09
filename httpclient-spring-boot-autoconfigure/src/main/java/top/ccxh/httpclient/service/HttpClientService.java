@@ -23,21 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HttpClientService3 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService3.class);
+public class HttpClientService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
     private CloseableHttpClient httpClient;
 
     private RequestConfig requestConfig;
 
     private Map<String, String> defaultHeader;
 
-    public HttpClientService3(CloseableHttpClient httpClient, RequestConfig requestConfig, Map<String, String> defaultHeader) {
+    public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig, Map<String, String> defaultHeader) {
         this.httpClient = httpClient;
         this.requestConfig = requestConfig;
         this.defaultHeader = defaultHeader;
     }
 
-    public HttpClientService3(CloseableHttpClient httpClient, RequestConfig requestConfig) {
+    public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
         this.httpClient = httpClient;
         this.requestConfig = requestConfig;
     }

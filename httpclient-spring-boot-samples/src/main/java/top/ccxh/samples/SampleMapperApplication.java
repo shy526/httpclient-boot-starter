@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import top.ccxh.httpclient.service.HttpClientService3;
+import top.ccxh.httpclient.service.HttpClientService;
 
 /**
  *
@@ -14,7 +14,7 @@ import top.ccxh.httpclient.service.HttpClientService3;
 public class SampleMapperApplication implements CommandLineRunner {
    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
    @Autowired
-    private HttpClientService3 httpClientService3;
+    private HttpClientService httpClientService;
 
     public static void main(String[] args) {
         SpringApplication.run(SampleMapperApplication.class, args);
@@ -22,7 +22,7 @@ public class SampleMapperApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("args = " + httpClientService3);
+        System.out.println("args = " + httpClientService);
     }
 
 }
