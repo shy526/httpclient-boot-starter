@@ -4,30 +4,28 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.springframework.util.StringUtils;
 import sun.nio.ch.IOUtil;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 
-public class HttpResult implements Serializable {
-    private HttpEntity httpEntity;
+public class HttpResult implements Closeable {
     private Integer httpStatus;
     private CloseableHttpResponse response;
+    private String entityStr;
 
     public HttpResult() {
         httpStatus = 0;
     }
 
     public HttpResult(CloseableHttpResponse response) {
-        this.setResponse(response);
-    }
 
-    public HttpEntity getHttpEntity() {
-        return httpEntity;
-    }
-
-    public void setHttpEntity(HttpEntity httpEntity) {
-        this.httpEntity = httpEntity;
+        this.response = response;
+        if (this.response != null) {
+            this.httpStatus = response.getStatusLine().getStatusCode();
+        }
     }
 
     public Integer getHttpStatus() {
@@ -42,43 +40,40 @@ public class HttpResult implements Serializable {
         return response;
     }
 
-    public void setResponse(CloseableHttpResponse response) {
-        //重新设置response 销毁之前的对象
-        consume();
-        this.response = response;
-        if (this.response != null) {
-            this.httpStatus = response.getStatusLine().getStatusCode();
-            this.httpEntity = response.getEntity();
-
-        }
-    }
 
     /**
      * 输出字符串 形式
-     * @param enCode 字符编码
+     *
+     * @param encode 字符编码
      * @return String
      */
-    private String getEntityString(String enCode) {
-        String result = null;
+    public String getEntityStr(String encode) {
+        HttpEntity entity = null;
         try {
-            result = EntityUtils.toString(this.httpEntity, enCode);
+            if (httpStatus.equals(HttpStatus.SC_OK)&&StringUtils.isEmpty(this.entityStr)) {
+                entity = this.response.getEntity();
+                this.entityStr = EntityUtils.toString(this.response.getEntity(), encode);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        consumeHttpEntity(entity);
+        return this.entityStr;
     }
 
-    private String getEntityString() {
-        return this.getEntityString("UTF-8");
+    public String getEntityStr() {
+        return this.getEntityStr("UTF-8");
     }
+
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
         consume();
+        super.finalize();
+
     }
 
-    public void consume() {
+    public void consumeHttpEntity(HttpEntity httpEntity) {
         if (httpEntity != null) {
             try {
                 EntityUtils.consume(httpEntity);
@@ -88,7 +83,11 @@ public class HttpResult implements Serializable {
                 httpEntity = null;
             }
         }
+    }
+
+    public void consume() {
         if (response != null) {
+            consumeHttpEntity(response.getEntity());
             try {
                 response.close();
             } catch (IOException e) {
@@ -97,5 +96,10 @@ public class HttpResult implements Serializable {
                 response = null;
             }
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.consume();
     }
 }

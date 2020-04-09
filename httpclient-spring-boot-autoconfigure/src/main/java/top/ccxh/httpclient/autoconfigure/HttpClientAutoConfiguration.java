@@ -129,7 +129,7 @@ public class HttpClientAutoConfiguration {
     }
 
     @Bean
-    public HttpClientService getHttpClientService(@Qualifier("closeableHttpClient")CloseableHttpClient httpClient,@Qualifier("requestConfig") RequestConfig requestConfig){
+    public HttpClientService getHttpClientService(@Qualifier("closeableHttpClient")CloseableHttpClient httpClient, @Qualifier("requestConfig") RequestConfig requestConfig){
         return new HttpClientService(httpClient,requestConfig);
     }
 

@@ -1,6 +1,8 @@
 package top.ccxh.httpclient.autoconfigure;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Map;
+
 
 @ConfigurationProperties(prefix = "http.client")
 public class HttpClientProperties {
@@ -17,8 +19,21 @@ public class HttpClientProperties {
     private Integer socketTimeout=30000;
 
 
-    private boolean staleConnectionCheckEnabled=true;
+    private boolean staleConnectionCheckEnabled=false;
 
+    private Map<String,String>  defaultHeader;
+
+    public boolean isStaleConnectionCheckEnabled() {
+        return staleConnectionCheckEnabled;
+    }
+
+    public Map<String, String> getDefaultHeader() {
+        return defaultHeader;
+    }
+
+    public void setDefaultHeader(Map<String, String> defaultHeader) {
+        this.defaultHeader = defaultHeader;
+    }
 
     public Integer getMaxTotal() {
         return maxTotal;
