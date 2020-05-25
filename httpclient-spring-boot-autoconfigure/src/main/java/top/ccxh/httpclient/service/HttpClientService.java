@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author ccxh
+ */
 public class HttpClientService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
     private CloseableHttpClient httpClient;

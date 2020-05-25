@@ -4,6 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.Map;
 
 
+/**
+ * @author ccxh
+ */
 @ConfigurationProperties(prefix = "http.client")
 public class HttpClientProperties {
     private Integer maxTotal=200;

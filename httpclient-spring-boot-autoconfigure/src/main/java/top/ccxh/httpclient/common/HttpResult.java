@@ -11,6 +11,7 @@ import java.io.IOException;
 
 /**
  * http统一返回结果集
+ * @author ccxh
  */
 public class HttpResult implements Closeable {
     private Integer httpStatus;
