@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author admin
+ * @author sjq
  */
 public class HttpClientService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);

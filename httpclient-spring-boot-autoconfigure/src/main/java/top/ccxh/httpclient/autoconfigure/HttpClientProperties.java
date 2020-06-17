@@ -2,14 +2,16 @@ package top.ccxh.httpclient.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 
 /**
- * @author admin
+ * @author sjq
  */
-@ConfigurationProperties(prefix = "http.client")
-public class HttpClientProperties {
+
+public class HttpClientProperties implements Serializable {
 
     private Integer maxTotal = 200;
 
@@ -24,22 +26,10 @@ public class HttpClientProperties {
     private Integer socketTimeout = 30000;
 
 
-    private boolean staleConnectionCheckEnabled = false;
+    private Boolean staleConnectionCheckEnabled = Boolean.FALSE;
 
-    private Map<String, String> defaultHeader;
-    private Map<String, HttpClientProperties> extraHttpClient;
+    private Map<String, String> header;
 
-    public boolean isStaleConnectionCheckEnabled() {
-        return staleConnectionCheckEnabled;
-    }
-
-    public Map<String, String> getDefaultHeader() {
-        return defaultHeader;
-    }
-
-    public void setDefaultHeader(Map<String, String> defaultHeader) {
-        this.defaultHeader = defaultHeader;
-    }
 
     public Integer getMaxTotal() {
         return maxTotal;
@@ -81,7 +71,7 @@ public class HttpClientProperties {
         this.socketTimeout = socketTimeout;
     }
 
-    public boolean getStaleConnectionCheckEnabled() {
+    public Boolean getStaleConnectionCheckEnabled() {
         return staleConnectionCheckEnabled;
     }
 
@@ -89,13 +79,19 @@ public class HttpClientProperties {
         this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
     }
 
-    public Map<String, HttpClientProperties> getExtraHttpClient() {
-        return extraHttpClient;
+
+    public Map<String, String> getHeader() {
+        return header;
     }
 
-    public void setExtraHttpClient(Map<String, HttpClientProperties> extraHttpClient) {
-        this.extraHttpClient = extraHttpClient;
+    public void setHeader(Map<String, String> header) {
+        if (header == null) {
+            header = new HashMap<>(1);
+        }
+        this.header = header;
     }
 
-
+    public void setStaleConnectionCheckEnabled(Boolean staleConnectionCheckEnabled) {
+        this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
+    }
 }

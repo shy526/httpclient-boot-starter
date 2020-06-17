@@ -74,7 +74,7 @@ public class HttpResult implements Closeable {
 
     }
 
-    public void consumeHttpEntity(HttpEntity httpEntity) {
+    private void consumeHttpEntity(HttpEntity httpEntity) {
         if (httpEntity != null) {
             try {
                 EntityUtils.consume(httpEntity);
@@ -86,7 +86,7 @@ public class HttpResult implements Closeable {
         }
     }
 
-    public void consume() {
+    private void consume() {
         if (response != null) {
             consumeHttpEntity(response.getEntity());
             try {

@@ -1,9 +1,6 @@
 package top.ccxh.samples;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -13,12 +10,6 @@ import org.springframework.context.ApplicationContext;
 import top.ccxh.httpclient.common.HttpResult;
 import top.ccxh.httpclient.service.HttpClientService;
 
-import javax.annotation.Resource;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import java.io.FileReader;
-
 /**
  * @author admin
  */
@@ -27,6 +18,7 @@ public class SampleMapperApplication implements CommandLineRunner {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
+    @Qualifier("httpClient")
     private HttpClientService httpClientService;
 
 
@@ -34,10 +26,6 @@ public class SampleMapperApplication implements CommandLineRunner {
     ApplicationContext applicationContext;
 
 
- /*   @Autowired
-    @Qualifier("testClient")
-    @Qualifier("testClient")
-    private HttpClientService httpClientService;*/
 
 
 
