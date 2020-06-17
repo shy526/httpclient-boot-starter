@@ -13,20 +13,33 @@ import java.util.Map;
 
 public class HttpClientProperties implements Serializable {
 
+    /**
+     * 连接池最大连接数
+     */
     private Integer maxTotal = 200;
 
+    /**
+     * 默认路由最大连接数
+     */
     private Integer defaultMaxPerRoute = 100;
 
+    /**
+     * 请求连接超时时间
+     */
     private Integer connectTimeout = 30000;
 
-
+    /**
+     * 设置请求超时时间
+     */
     private Integer connectionRequestTimeout = 50000;
 
-
+    /**
+     *  socket超时时间
+     */
     private Integer socketTimeout = 30000;
 
 
-    private Boolean staleConnectionCheckEnabled = Boolean.FALSE;
+    private Boolean staleConnectionCheckEnabled = Boolean.TRUE;
 
     private Map<String, String> header;
 
