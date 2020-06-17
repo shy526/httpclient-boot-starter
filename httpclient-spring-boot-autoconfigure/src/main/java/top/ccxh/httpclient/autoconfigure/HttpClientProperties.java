@@ -29,7 +29,7 @@ public class HttpClientProperties implements Serializable {
     private Integer connectTimeout = 30000;
 
     /**
-     * 设置请求超时时间
+     * 连接池获取请求超时时间
      */
     private Integer connectionRequestTimeout = 50000;
 

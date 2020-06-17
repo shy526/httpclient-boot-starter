@@ -47,11 +47,11 @@ public class HttpClientService {
     }
 
 
-
     /**
      * 执行提交
      *
      * @param httpMethod httpMethod
+     *
      * @return HttpResult
      */
     public HttpResult execute(HttpRequestBase httpMethod) {
@@ -59,7 +59,7 @@ public class HttpClientService {
         LOGGER.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
         try {
             CloseableHttpResponse response = httpClient.execute(httpMethod);
-            result=new HttpResult(response);
+            result = new HttpResult(response);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -71,6 +71,7 @@ public class HttpClientService {
      *
      * @param url    url
      * @param params params
+     *
      * @return String
      */
     public String buildUrlParams(String url, Map<String, String> params) {
@@ -118,6 +119,7 @@ public class HttpClientService {
      *
      * @param format 参数
      * @param encode 字符编码
+     *
      * @return StringEntity
      */
     public HttpRequestBase httpSetFormat(Map<String, String> format, String encode, HttpEntityEnclosingRequestBase requestBase) {
@@ -148,6 +150,7 @@ public class HttpClientService {
      *
      * @param hostName 代理主机名
      * @param port     代理端口
+     *
      * @return Message
      */
     public HttpRequestBase buildProxy(String hostName, Integer port, HttpRequestBase httpRequestBase) {
@@ -161,10 +164,11 @@ public class HttpClientService {
      * 设置 requestConfig
      *
      * @param httpRequestBase 请求
+     *
      * @return httpRequestBase
      */
     public HttpRequestBase httpSetRequestConfig(HttpRequestBase httpRequestBase) {
-        httpRequestBase.setConfig(requestConfig);
+        httpRequestBase.setConfig(RequestConfig.copy(this.requestConfig).build());
         return httpRequestBase;
     }
 
@@ -181,6 +185,7 @@ public class HttpClientService {
      * @param url    url
      * @param params 参数
      * @param header 请求头
+     *
      * @return HttpResult
      */
     public HttpResult get(String url, Map<String, String> params, Map<String, String> header) {
@@ -192,6 +197,7 @@ public class HttpClientService {
      *
      * @param url    url
      * @param params 参数
+     *
      * @return HttpResult
      */
     public HttpResult get(String url, Map<String, String> params) {
@@ -202,6 +208,7 @@ public class HttpClientService {
      * get请求
      *
      * @param url url
+     *
      * @return HttpResult
      */
     public HttpResult get(String url) {
@@ -209,6 +216,15 @@ public class HttpClientService {
     }
 
 
+    /**
+     * 生成post,并设置请求头和requestConfig
+     * @param url url
+     * @param params params
+     * @param header header
+     * @param format format
+     * @param encode encode
+     * @return HttpRequestBase
+     */
     public HttpRequestBase buildPost(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
         HttpPost httpPost = new HttpPost(buildUrlParams(url, params));
         return httpSetRequestConfig(httpSetHeader(header, httpSetFormat(format, encode, httpPost)));
@@ -223,6 +239,7 @@ public class HttpClientService {
      * @param header 请求头
      * @param format 表单
      * @param encode 表单编码
+     *
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
@@ -235,6 +252,7 @@ public class HttpClientService {
      * @param url    url
      * @param params 表单参数
      * @param header 请求头
+     *
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params, Map<String, String> header) {
@@ -248,6 +266,7 @@ public class HttpClientService {
      * @param header 请求头
      * @param format 表单
      * @param encode 表单编码
+     *
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> header, Map<String, String> format, String encode) {
@@ -258,6 +277,7 @@ public class HttpClientService {
      * 执行POST请求
      *
      * @param url url
+     *
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params) {
@@ -268,17 +288,40 @@ public class HttpClientService {
      * 执行POST请求
      *
      * @param url url
+     *
      * @return HttpResult
      */
     public HttpResult post(String url) {
         return post(url, null, null, null, null);
     }
 
-
+    /**
+     * 生成代理配置
+     *
+     * @param hostName hostName
+     * @param port     port
+     *
+     * @return RequestConfig
+     */
     public RequestConfig buildProxyConfig(String hostName, Integer port) {
-        HttpHost proxy = new HttpHost(hostName, port);
-        return RequestConfig.custom().setProxy(proxy).build();
+        return buildProxyConfig(hostName, port, null);
+    }
 
+    /**
+     * 生成代理配置
+     *
+     * @param hostName      hostName
+     * @param port          port
+     * @param requestConfig requestConfig
+     *
+     * @return RequestConfig
+     */
+    public RequestConfig buildProxyConfig(String hostName, Integer port, RequestConfig requestConfig) {
+        if (requestConfig == null) {
+            requestConfig = this.requestConfig;
+        }
+        HttpHost proxy = new HttpHost(hostName, port);
+        return RequestConfig.copy(requestConfig).setProxy(proxy).build();
     }
 
     /**
@@ -289,6 +332,7 @@ public class HttpClientService {
      * @param url      访问的url
      * @param params   url参数
      * @param header   求情头
+     *
      * @return requestBase
      */
     public HttpRequestBase buildProxyGet(String hostName, Integer port, String url, Map<String, String> params, Map<String, String> header) {
@@ -308,6 +352,7 @@ public class HttpClientService {
      * @param header   求情头
      * @param format   format
      * @param encode   format编码
+     *
      * @return requestBase
      */
     public HttpRequestBase buildProxyPost(String hostName, Integer port, String url, Map<String, String> params,
@@ -318,10 +363,10 @@ public class HttpClientService {
     }
 
     /**
-     *
-     * @param fileuploadName 长传文件名称
-     * @param file file
+     * @param fileuploadName         长传文件名称
+     * @param file                   file
      * @param multipartEntityBuilder multipartEntityBuilder null时自动创建
+     *
      * @return MultipartEntityBuilder
      */
     public MultipartEntityBuilder buildFile(String fileuploadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
