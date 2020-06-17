@@ -291,7 +291,7 @@ public class HttpClientService {
      * @param header   求情头
      * @return requestBase
      */
-    public HttpRequestBase BuildProxyGet(String hostName, Integer port, String url, Map<String, String> params, Map<String, String> header) {
+    public HttpRequestBase buildProxyGet(String hostName, Integer port, String url, Map<String, String> params, Map<String, String> header) {
         HttpRequestBase requestBase = buildGet(url, params, header);
         requestBase.setConfig(buildProxyConfig(hostName, port));
         return requestBase;
