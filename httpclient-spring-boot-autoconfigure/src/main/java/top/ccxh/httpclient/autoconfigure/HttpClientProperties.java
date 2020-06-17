@@ -1,27 +1,33 @@
 package top.ccxh.httpclient.autoconfigure;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
 
 
+/**
+ * @author admin
+ */
 @ConfigurationProperties(prefix = "http.client")
 public class HttpClientProperties {
-    private Integer maxTotal=200;
 
-    private Integer defaultMaxPerRoute=100;
+    private Integer maxTotal = 200;
 
-    private Integer connectTimeout=30000;
+    private Integer defaultMaxPerRoute = 100;
 
-
-    private Integer connectionRequestTimeout=50000;
+    private Integer connectTimeout = 30000;
 
 
-    private Integer socketTimeout=30000;
+    private Integer connectionRequestTimeout = 50000;
 
 
-    private boolean staleConnectionCheckEnabled=false;
+    private Integer socketTimeout = 30000;
 
-    private Map<String,String>  defaultHeader;
+
+    private boolean staleConnectionCheckEnabled = false;
+
+    private Map<String, String> defaultHeader;
+    private Map<String, HttpClientProperties> extraHttpClient;
 
     public boolean isStaleConnectionCheckEnabled() {
         return staleConnectionCheckEnabled;
@@ -82,4 +88,14 @@ public class HttpClientProperties {
     public void setStaleConnectionCheckEnabled(boolean staleConnectionCheckEnabled) {
         this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
     }
+
+    public Map<String, HttpClientProperties> getExtraHttpClient() {
+        return extraHttpClient;
+    }
+
+    public void setExtraHttpClient(Map<String, HttpClientProperties> extraHttpClient) {
+        this.extraHttpClient = extraHttpClient;
+    }
+
+
 }

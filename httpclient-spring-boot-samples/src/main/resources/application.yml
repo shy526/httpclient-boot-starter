@@ -7,3 +7,12 @@ http:
     maxTotal: 100
     defaultMaxPerRoute: 100
     defaultHeader: {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"}
+    extraHttpClient:
+        testClient:
+          connectionRequestTimeout: 500
+          connectTimeout: 50000
+          socketTimeout: 30000
+          staleConnectionCheckEnabled: false
+          maxTotal: 100
+          defaultMaxPerRoute: 100
+          defaultHeader: {"User-Agent":"----------------------"}

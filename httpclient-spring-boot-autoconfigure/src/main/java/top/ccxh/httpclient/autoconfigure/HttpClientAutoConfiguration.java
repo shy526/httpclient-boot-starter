@@ -8,14 +8,22 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import top.ccxh.httpclient.service.HttpClientService;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.security.KeyManagementException;
@@ -23,22 +31,36 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Map;
 
 
+/**
+ * @author admin
+ */
 @ConditionalOnClass
 @Configuration
+@Import(ExtraHttpRegistrar.class)
 @EnableConfigurationProperties(HttpClientProperties.class)
 public class HttpClientAutoConfiguration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
+
+    public HttpClientAutoConfiguration() {
+    }
+
+    public HttpClientAutoConfiguration(HttpClientProperties httpConfigProperties) {
+        this.httpConfigProperties=httpConfigProperties;
+    }
+
     @Autowired
     private HttpClientProperties httpConfigProperties;
 
-
     /**
      * 首先实例化一个连接池管理器，设置最大连接数、并发连接数
-     * @return
+     *
+     * @return PoolingHttpClientConnectionManager
      */
-    @Bean(name = "httpClientConnectionManager")
-    public PoolingHttpClientConnectionManager getHttpClientConnectionManager(){
+    @Bean("httpClientConnectionManager")
+    public PoolingHttpClientConnectionManager getHttpClientConnectionManager() {
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager();
         //最大连接数
         httpClientConnectionManager.setMaxTotal(httpConfigProperties.getMaxTotal());
@@ -49,10 +71,11 @@ public class HttpClientAutoConfiguration {
 
     /**
      * https 支持
-     * @return
+     *
+     * @return SSLConnectionSocketFactory
      */
     @Bean("sslconnectionsocketfactory")
-    public SSLConnectionSocketFactory getSSLConnectionSocketFactory(){
+    public SSLConnectionSocketFactory getSSLConnectionSocketFactory() {
         try {
             SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
                 // 信任所有
@@ -77,11 +100,13 @@ public class HttpClientAutoConfiguration {
     /**
      * 实例化连接池，设置连接池管理器。
      * 这里需要以参数形式注入上面实例化的连接池管理器
+     *
      * @param phccm
-     * @return
+     *
+     * @return HttpClientBuilder
      */
-    @Bean(name = "httpClientBuilder")
-    public HttpClientBuilder getHttpClientBuilder(@Qualifier("httpClientConnectionManager")PoolingHttpClientConnectionManager phccm, @Qualifier("sslconnectionsocketfactory")SSLConnectionSocketFactory sslcsf){
+    @Bean("httpClientBuilder")
+    public HttpClientBuilder getHttpClientBuilder(@Qualifier("httpClientConnectionManager") PoolingHttpClientConnectionManager phccm, @Qualifier("sslconnectionsocketfactory") SSLConnectionSocketFactory sslcsf) {
 
         //HttpClientBuilder中的构造方法被protected修饰，所以这里不能直接使用new来实例化一个HttpClientBuilder，可以使用HttpClientBuilder提供的静态方法create()来获取HttpClientBuilder对象
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
@@ -94,11 +119,13 @@ public class HttpClientAutoConfiguration {
 
     /**
      * 注入连接池，用于获取httpClient
+     *
      * @param httpClientBuilder
-     * @return
+     *
+     * @return CloseableHttpClient
      */
-    @Bean(name = "closeableHttpClient")
-    public CloseableHttpClient getCloseableHttpClient(@Qualifier("httpClientBuilder") HttpClientBuilder httpClientBuilder){
+    @Bean("closeableHttpClient")
+    public CloseableHttpClient getCloseableHttpClient(@Qualifier("httpClientBuilder") HttpClientBuilder httpClientBuilder) {
         return httpClientBuilder.build();
     }
 
@@ -107,10 +134,11 @@ public class HttpClientAutoConfiguration {
      * 通过RequestConfig的custom方法来获取到一个Builder对象
      * 设置builder的连接信息
      * 这里还可以设置proxy，cookieSpec等属性。有需要的话可以在此设置
-     * @return
+     *
+     * @return RequestConfig.Builder
      */
-    @Bean(name = "builder")
-    public RequestConfig.Builder getBuilder(){
+    @Bean("builder")
+    public RequestConfig.Builder getBuilder() {
         RequestConfig.Builder builder = RequestConfig.custom();
         return builder.setConnectTimeout(httpConfigProperties.getConnectTimeout())
                 .setConnectionRequestTimeout(httpConfigProperties.getConnectionRequestTimeout())
@@ -120,18 +148,24 @@ public class HttpClientAutoConfiguration {
 
     /**
      * 使用builder构建一个RequestConfig对象
+     *
      * @param builder
-     * @return
+     *
+     * @return RequestConfig
      */
-    @Bean(name = "requestConfig")
-    public RequestConfig getRequestConfig(@Qualifier("builder") RequestConfig.Builder builder){
+    @Bean("requestConfig")
+    public RequestConfig getRequestConfig(@Qualifier("builder") RequestConfig.Builder builder) {
         return builder.build();
     }
 
-    @Bean
-    public HttpClientService getHttpClientService(@Qualifier("closeableHttpClient")CloseableHttpClient httpClient, @Qualifier("requestConfig") RequestConfig requestConfig){
-        return new HttpClientService(httpClient,requestConfig);
+    @Bean("httpClientService")
+    public HttpClientService getHttpClientService(@Qualifier("closeableHttpClient") CloseableHttpClient httpClient, @Qualifier("requestConfig") RequestConfig requestConfig) {
+        HttpClientService httpClientService = new HttpClientService(httpClient, requestConfig, httpConfigProperties.getDefaultHeader());
+        LOGGER.info("HttpClientService-->{}", httpClientService);
+        return httpClientService;
     }
+
+
 
 
 }
