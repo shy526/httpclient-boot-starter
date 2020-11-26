@@ -17,7 +17,7 @@ import top.ccxh.httpclient.service.HttpClientService;
 import java.util.Map;
 
 /**
- * @author admin
+ * @author sjq
  */
 
 public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {

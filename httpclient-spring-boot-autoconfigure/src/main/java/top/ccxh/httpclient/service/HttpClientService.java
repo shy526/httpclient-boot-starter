@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class HttpClientService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
-    private CloseableHttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
-    private RequestConfig requestConfig;
+    private final RequestConfig requestConfig;
 
     private Map<String, String> defaultHeader;
 
@@ -363,19 +363,18 @@ public class HttpClientService {
     }
 
     /**
-     * @param fileuploadName         长传文件名称
+     * @param fileUpLoadName         长传文件名称
      * @param file                   file
      * @param multipartEntityBuilder multipartEntityBuilder null时自动创建
      *
      * @return MultipartEntityBuilder
      */
-    public MultipartEntityBuilder buildFile(String fileuploadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
+    public MultipartEntityBuilder buildFile(String fileUpLoadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
         if (multipartEntityBuilder != null) {
             multipartEntityBuilder = MultipartEntityBuilder.create();
-
         }
         try {
-            multipartEntityBuilder.addBinaryBody(fileuploadName, new FileInputStream(file), ContentType.MULTIPART_FORM_DATA, file.getName());
+            multipartEntityBuilder.addBinaryBody(fileUpLoadName, new FileInputStream(file), ContentType.MULTIPART_FORM_DATA, file.getName());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

@@ -28,7 +28,6 @@ public class HttpClientFactory {
         SSLConnectionSocketFactory sslFactory = getSSLConnectionSocketFactory();
         HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory);
         return getCloseableHttpClient(httpBuilder);
-
     }
 
     public static RequestConfig getHttpRequestConfig(HttpClientProperties httpConfigProperties) {
