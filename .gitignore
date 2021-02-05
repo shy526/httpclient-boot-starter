@@ -1,4 +1,9 @@
-.idea
-*.iml
-*/*.iml
-
+# Created by .ignore support plugin (hsz.mobi)
+.idea/
+httpclient-boot-starter.iml
+httpclient-spring-boot-autoconfigure/httpclient-spring-boot-autoconfigure.iml
+httpclient-spring-boot-autoconfigure/target/
+httpclient-spring-boot-samples/httpclient-spring-boot-samples.iml
+httpclient-spring-boot-samples/target/
+httpclient-spring-boot-starter/httpclient-spring-boot-starter.iml
+httpclient-spring-boot-starter/target/

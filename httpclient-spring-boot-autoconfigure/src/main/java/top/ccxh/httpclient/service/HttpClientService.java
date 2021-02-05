@@ -28,11 +28,17 @@ import java.util.Map;
  */
 public class HttpClientService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
-    private CloseableHttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
-    private RequestConfig requestConfig;
+    private final RequestConfig requestConfig;
 
     private Map<String, String> defaultHeader;
+
+
+    public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
+        this.httpClient = httpClient;
+        this.requestConfig = requestConfig;
+    }
 
     public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig, Map<String, String> defaultHeader) {
         this.httpClient = httpClient;
@@ -40,15 +46,12 @@ public class HttpClientService {
         this.defaultHeader = defaultHeader;
     }
 
-    public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
-        this.httpClient = httpClient;
-        this.requestConfig = requestConfig;
-    }
 
     /**
      * 执行提交
      *
      * @param httpMethod httpMethod
+     *
      * @return HttpResult
      */
     public HttpResult execute(HttpRequestBase httpMethod) {
@@ -56,7 +59,7 @@ public class HttpClientService {
         LOGGER.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
         try {
             CloseableHttpResponse response = httpClient.execute(httpMethod);
-            result=new HttpResult(response);
+            result = new HttpResult(response);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -68,6 +71,7 @@ public class HttpClientService {
      *
      * @param url    url
      * @param params params
+     *
      * @return String
      */
     public String buildUrlParams(String url, Map<String, String> params) {
@@ -115,6 +119,7 @@ public class HttpClientService {
      *
      * @param format 参数
      * @param encode 字符编码
+     *
      * @return StringEntity
      */
     public HttpRequestBase httpSetFormat(Map<String, String> format, String encode, HttpEntityEnclosingRequestBase requestBase) {
@@ -158,10 +163,11 @@ public class HttpClientService {
      * 设置 requestConfig
      *
      * @param httpRequestBase 请求
+     *
      * @return httpRequestBase
      */
     public HttpRequestBase httpSetRequestConfig(HttpRequestBase httpRequestBase) {
-        httpRequestBase.setConfig(requestConfig);
+        httpRequestBase.setConfig(RequestConfig.copy(this.requestConfig).build());
         return httpRequestBase;
     }
 
@@ -206,6 +212,15 @@ public class HttpClientService {
     }
 
 
+    /**
+     * 生成post,并设置请求头和requestConfig
+     * @param url url
+     * @param params params
+     * @param header header
+     * @param format format
+     * @param encode encode
+     * @return HttpRequestBase
+     */
     public HttpRequestBase buildPost(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
         HttpPost httpPost = new HttpPost(buildUrlParams(url, params));
         return httpSetRequestConfig(httpSetHeader(header, httpSetFormat(format, encode, httpPost)));
@@ -220,6 +235,7 @@ public class HttpClientService {
      * @param header 请求头
      * @param format 表单
      * @param encode 表单编码
+     *
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
@@ -271,11 +287,33 @@ public class HttpClientService {
         return post(url, null, null, null, null);
     }
 
-
+    /**
+     * 生成代理配置
+     *
+     * @param hostName hostName
+     * @param port     port
+     *
+     * @return RequestConfig
+     */
     public RequestConfig buildProxyConfig(String hostName, Integer port) {
-        HttpHost proxy = new HttpHost(hostName, port);
-        return RequestConfig.custom().setProxy(proxy).build();
+        return buildProxyConfig(hostName, port, null);
+    }
 
+    /**
+     * 生成代理配置
+     *
+     * @param hostName      hostName
+     * @param port          port
+     * @param requestConfig requestConfig
+     *
+     * @return RequestConfig
+     */
+    public RequestConfig buildProxyConfig(String hostName, Integer port, RequestConfig requestConfig) {
+        if (requestConfig == null) {
+            requestConfig = this.requestConfig;
+        }
+        HttpHost proxy = new HttpHost(hostName, port);
+        return RequestConfig.copy(requestConfig).setProxy(proxy).build();
     }
 
     /**
@@ -286,9 +324,10 @@ public class HttpClientService {
      * @param url      访问的url
      * @param params   url参数
      * @param header   求情头
+     *
      * @return requestBase
      */
-    public HttpRequestBase BuildProxyGet(String hostName, Integer port, String url, Map<String, String> params, Map<String, String> header) {
+    public HttpRequestBase buildProxyGet(String hostName, Integer port, String url, Map<String, String> params, Map<String, String> header) {
         HttpRequestBase requestBase = buildGet(url, params, header);
         requestBase.setConfig(buildProxyConfig(hostName, port));
         return requestBase;
@@ -315,19 +354,18 @@ public class HttpClientService {
     }
 
     /**
-     *
-     * @param fileuploadName 长传文件名称
-     * @param file file
+     * @param fileUpLoadName         长传文件名称
+     * @param file                   file
      * @param multipartEntityBuilder multipartEntityBuilder null时自动创建
+     *
      * @return MultipartEntityBuilder
      */
-    public MultipartEntityBuilder buildFile(String fileuploadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
+    public MultipartEntityBuilder buildFile(String fileUpLoadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
         if (multipartEntityBuilder != null) {
             multipartEntityBuilder = MultipartEntityBuilder.create();
-
         }
         try {
-            multipartEntityBuilder.addBinaryBody(fileuploadName, new FileInputStream(file), ContentType.MULTIPART_FORM_DATA, file.getName());
+            multipartEntityBuilder.addBinaryBody(fileUpLoadName, new FileInputStream(file), ContentType.MULTIPART_FORM_DATA, file.getName());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

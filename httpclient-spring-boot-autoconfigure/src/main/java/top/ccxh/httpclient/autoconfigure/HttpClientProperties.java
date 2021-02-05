@@ -1,42 +1,48 @@
 package top.ccxh.httpclient.autoconfigure;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 
 /**
- * @author ccxh
+ * @author sjq
  */
-@ConfigurationProperties(prefix = "http.client")
-public class HttpClientProperties {
-    private Integer maxTotal=200;
 
-    private Integer defaultMaxPerRoute=100;
+public class HttpClientProperties implements Serializable {
 
-    private Integer connectTimeout=30000;
+    /**
+     * 连接池最大连接数
+     */
+    private Integer maxTotal = 200;
+
+    /**
+     * 默认路由最大连接数
+     */
+    private Integer defaultMaxPerRoute = 100;
+
+    /**
+     * 请求连接超时时间
+     */
+    private Integer connectTimeout = 30000;
+
+    /**
+     * 连接池获取请求超时时间
+     */
+    private Integer connectionRequestTimeout = 50000;
+
+    /**
+     *  socket超时时间
+     */
+    private Integer socketTimeout = 30000;
 
 
-    private Integer connectionRequestTimeout=50000;
+    private Boolean staleConnectionCheckEnabled = Boolean.TRUE;
 
+    private Map<String, String> header;
 
-    private Integer socketTimeout=30000;
-
-
-    private boolean staleConnectionCheckEnabled=false;
-
-    private Map<String,String>  defaultHeader;
-
-    public boolean isStaleConnectionCheckEnabled() {
-        return staleConnectionCheckEnabled;
-    }
-
-    public Map<String, String> getDefaultHeader() {
-        return defaultHeader;
-    }
-
-    public void setDefaultHeader(Map<String, String> defaultHeader) {
-        this.defaultHeader = defaultHeader;
-    }
 
     public Integer getMaxTotal() {
         return maxTotal;
@@ -78,11 +84,27 @@ public class HttpClientProperties {
         this.socketTimeout = socketTimeout;
     }
 
-    public boolean getStaleConnectionCheckEnabled() {
+    public Boolean getStaleConnectionCheckEnabled() {
         return staleConnectionCheckEnabled;
     }
 
     public void setStaleConnectionCheckEnabled(boolean staleConnectionCheckEnabled) {
+        this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
+    }
+
+
+    public Map<String, String> getHeader() {
+        return header;
+    }
+
+    public void setHeader(Map<String, String> header) {
+        if (header == null) {
+            header = new HashMap<>(1);
+        }
+        this.header = header;
+    }
+
+    public void setStaleConnectionCheckEnabled(Boolean staleConnectionCheckEnabled) {
         this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
     }
 }
