@@ -1,6 +1,7 @@
 package top.ccxh.httpclient.autoconfigure;
 
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -17,11 +18,14 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author sjq
  */
 public class HttpClientFactory {
+    private static CloseExpiredConnectionsThread closeExpiredConnectionsThread = null;
 
     public static CloseableHttpClient getHttpClient(HttpClientProperties properties) {
         PoolingHttpClientConnectionManager manager = getHttpClientConnectionManager(properties);
@@ -48,6 +52,11 @@ public class HttpClientFactory {
         httpClientConnectionManager.setMaxTotal(httpConfigProperties.getMaxTotal());
         //并发数
         httpClientConnectionManager.setDefaultMaxPerRoute(httpConfigProperties.getDefaultMaxPerRoute());
+        if (closeExpiredConnectionsThread == null) {
+            closeExpiredConnectionsThread = new CloseExpiredConnectionsThread();
+            closeExpiredConnectionsThread.start();
+        }
+        closeExpiredConnectionsThread.addManage(httpClientConnectionManager);
         return httpClientConnectionManager;
     }
 
@@ -83,7 +92,6 @@ public class HttpClientFactory {
      * 这里需要以参数形式注入上面实例化的连接池管理器
      *
      * @param phccm
-     *
      * @return HttpClientBuilder
      */
     public static HttpClientBuilder getHttpClientBuilder(PoolingHttpClientConnectionManager phccm, SSLConnectionSocketFactory sslcsf) {
@@ -101,7 +109,6 @@ public class HttpClientFactory {
      * 注入连接池，用于获取httpClient
      *
      * @param httpClientBuilder
-     *
      * @return CloseableHttpClient
      */
     public static CloseableHttpClient getCloseableHttpClient(HttpClientBuilder httpClientBuilder) {
@@ -128,12 +135,33 @@ public class HttpClientFactory {
      * 使用builder构建一个RequestConfig对象
      *
      * @param builder
-     *
      * @return RequestConfig
      */
     public static RequestConfig getRequestConfig(RequestConfig.Builder builder) {
         return builder.build();
     }
 
+    private static class CloseExpiredConnectionsThread extends Thread {
 
+        private final List<HttpClientConnectionManager> manages = new ArrayList<>();
+
+        public void addManage(HttpClientConnectionManager manger) {
+            manages.add(manger);
+        }
+        @Override
+        public void run() {
+            for (; ; ) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (HttpClientConnectionManager item : manages) {
+                    // 关闭失效的连接
+                    item.closeExpiredConnections();
+                    //item.closeIdleConnections(30, TimeUnit.SECONDS);
+                }
+            }
+        }
+    }
 }
