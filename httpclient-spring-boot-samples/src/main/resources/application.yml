@@ -5,7 +5,7 @@ http:
       connectionRequestTimeout: 500
       connectTimeout: 50000
       socketTimeout: 30000
-      staleConnectionCheckEnabled: true
+      validateAfterInactivity: 2000
       maxTotal: 200
       defaultMaxPerRoute: 100
       header: {etag: "16e36-540b1498e39c0"}
@@ -13,7 +13,12 @@ http:
       connectionRequestTimeout: 111
       connectTimeout: 50000
       socketTimeout: 30000
-      staleConnectionCheckEnabled: true
+      validateAfterInactivity: 2000
       maxTotal: 200
       defaultMaxPerRoute: 100
       header: {etag: "11111"}
+      closeTask:
+        name: httpClient2-close-task
+        idleTime: 4000
+        initialDelay: 4000
+        delay: 4000

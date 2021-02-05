@@ -10,32 +10,26 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import top.ccxh.httpclient.service.HttpClientService;
+import top.ccxh.httpclient.tool.ThreadPoolUtils;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author sjq
  */
 public class HttpClientFactory {
-    private static CloseExpiredConnectionsThread closeExpiredConnectionsThread = null;
 
     public static CloseableHttpClient getHttpClient(HttpClientProperties properties) {
         PoolingHttpClientConnectionManager manager = getHttpClientConnectionManager(properties);
-        SSLConnectionSocketFactory sslFactory = getSSLConnectionSocketFactory();
+        SSLConnectionSocketFactory sslFactory = getSslConnectionSocketFactory();
         HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory);
         return getCloseableHttpClient(httpBuilder);
-    }
-
-    public static RequestConfig getHttpRequestConfig(HttpClientProperties httpConfigProperties) {
-        return getRequestConfig(getBuilder(httpConfigProperties));
     }
 
     public static HttpClientService getHttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
@@ -43,20 +37,17 @@ public class HttpClientFactory {
     }
 
     public static HttpClientService getHttpClientService(HttpClientProperties properties) {
-        return new HttpClientService(getHttpClient(properties), getHttpRequestConfig(properties), properties.getHeader());
+        return new HttpClientService(getHttpClient(properties), getRequestConfig(properties), properties.getHeader());
     }
 
-    public static PoolingHttpClientConnectionManager getHttpClientConnectionManager(HttpClientProperties httpConfigProperties) {
+    public static PoolingHttpClientConnectionManager getHttpClientConnectionManager(HttpClientProperties properties) {
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager();
         //最大连接数
-        httpClientConnectionManager.setMaxTotal(httpConfigProperties.getMaxTotal());
+        httpClientConnectionManager.setMaxTotal(properties.getMaxTotal());
         //并发数
-        httpClientConnectionManager.setDefaultMaxPerRoute(httpConfigProperties.getDefaultMaxPerRoute());
-        if (closeExpiredConnectionsThread == null) {
-            closeExpiredConnectionsThread = new CloseExpiredConnectionsThread();
-            closeExpiredConnectionsThread.start();
-        }
-        closeExpiredConnectionsThread.addManage(httpClientConnectionManager);
+        httpClientConnectionManager.setDefaultMaxPerRoute(properties.getDefaultMaxPerRoute());
+        httpClientConnectionManager.setValidateAfterInactivity(properties.getValidateAfterInactivity());
+        CloseExpiredConnectionsTask.start(httpClientConnectionManager,properties.getCloseTask());
         return httpClientConnectionManager;
     }
 
@@ -65,7 +56,7 @@ public class HttpClientFactory {
      *
      * @return SSLConnectionSocketFactory
      */
-    public static SSLConnectionSocketFactory getSSLConnectionSocketFactory() {
+    public static SSLConnectionSocketFactory getSslConnectionSocketFactory() {
         try {
             SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
                 // 信任所有
@@ -76,12 +67,7 @@ public class HttpClientFactory {
             }).build();
             HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
             return new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-            // HttpClients.custom().setSSLSocketFactory(sslsf).build();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -89,79 +75,45 @@ public class HttpClientFactory {
 
     /**
      * 实例化连接池，设置连接池管理器。
-     * 这里需要以参数形式注入上面实例化的连接池管理器
      *
-     * @param phccm
+     * @param poolManager poolManager
+     * @param sslFactory  sslFactory
      * @return HttpClientBuilder
      */
-    public static HttpClientBuilder getHttpClientBuilder(PoolingHttpClientConnectionManager phccm, SSLConnectionSocketFactory sslcsf) {
-
-        //HttpClientBuilder中的构造方法被protected修饰，所以这里不能直接使用new来实例化一个HttpClientBuilder，可以使用HttpClientBuilder提供的静态方法create()来获取HttpClientBuilder对象
+    public static HttpClientBuilder getHttpClientBuilder(PoolingHttpClientConnectionManager poolManager, SSLConnectionSocketFactory sslFactory) {
+        //HttpClientBuilder中的构造方法被protected修饰，所以这里不能直接使用new来实例化一个HttpClientBuilder，
+        //可以使用HttpClientBuilder提供的静态方法create()来获取HttpClientBuilder对象
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-
-        httpClientBuilder.setConnectionManager(phccm);
-        httpClientBuilder.setSSLSocketFactory(sslcsf);
-
+        httpClientBuilder.setConnectionManager(poolManager);
+        httpClientBuilder.setSSLSocketFactory(sslFactory);
         return httpClientBuilder;
     }
 
     /**
      * 注入连接池，用于获取httpClient
      *
-     * @param httpClientBuilder
+     * @param httpClientBuilder httpClientBuilder
      * @return CloseableHttpClient
      */
     public static CloseableHttpClient getCloseableHttpClient(HttpClientBuilder httpClientBuilder) {
         return httpClientBuilder.build();
     }
 
+
     /**
      * Builder是RequestConfig的一个内部类
      * 通过RequestConfig的custom方法来获取到一个Builder对象
      * 设置builder的连接信息
      * 这里还可以设置proxy，cookieSpec等属性。有需要的话可以在此设置
+     * 使用builder构建一个RequestConfig对象
      *
-     * @return RequestConfig.Builder
+     * @param httpClientProperties httpClientProperties
+     * @return RequestConfig
      */
-    public static RequestConfig.Builder getBuilder(HttpClientProperties httpClientProperties) {
+    public static RequestConfig getRequestConfig(HttpClientProperties httpClientProperties) {
         RequestConfig.Builder builder = RequestConfig.custom();
         return builder.setConnectTimeout(httpClientProperties.getConnectTimeout())
                 .setConnectionRequestTimeout(httpClientProperties.getConnectionRequestTimeout())
-                .setSocketTimeout(httpClientProperties.getSocketTimeout())
-                .setStaleConnectionCheckEnabled(httpClientProperties.getStaleConnectionCheckEnabled());
-    }
-
-    /**
-     * 使用builder构建一个RequestConfig对象
-     *
-     * @param builder
-     * @return RequestConfig
-     */
-    public static RequestConfig getRequestConfig(RequestConfig.Builder builder) {
-        return builder.build();
-    }
-
-    private static class CloseExpiredConnectionsThread extends Thread {
-
-        private final List<HttpClientConnectionManager> manages = new ArrayList<>();
-
-        public void addManage(HttpClientConnectionManager manger) {
-            manages.add(manger);
-        }
-        @Override
-        public void run() {
-            for (; ; ) {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                for (HttpClientConnectionManager item : manages) {
-                    // 关闭失效的连接
-                    item.closeExpiredConnections();
-                    //item.closeIdleConnections(30, TimeUnit.SECONDS);
-                }
-            }
-        }
+                .setSocketTimeout(httpClientProperties.getSocketTimeout()).build();
     }
 }

@@ -13,8 +13,11 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import top.ccxh.httpclient.service.HttpClientService;
+import top.ccxh.httpclient.tool.ThreadPoolUtils;
 
 import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author sjq
@@ -35,7 +38,7 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
             BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(HttpClientService.class);
             CloseableHttpClient httpClient = HttpClientFactory.getHttpClient(item.getValue());
             beanDefinitionBuilder.addConstructorArgValue(httpClient);
-            RequestConfig httpRequestConfig = HttpClientFactory.getHttpRequestConfig(item.getValue());
+            RequestConfig httpRequestConfig = HttpClientFactory.getRequestConfig(item.getValue());
             beanDefinitionBuilder.addConstructorArgValue(httpRequestConfig);
             Map<String, String> header = item.getValue().getHeader();
             header.putAll(commHeader);

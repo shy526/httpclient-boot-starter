@@ -7,7 +7,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -360,7 +360,7 @@ public class HttpClientService {
      *
      * @return MultipartEntityBuilder
      */
-    public MultipartEntityBuilder buildFile(String fileUpLoadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
+    /*public MultipartEntityBuilder buildFile(String fileUpLoadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
         if (multipartEntityBuilder != null) {
             multipartEntityBuilder = MultipartEntityBuilder.create();
         }
@@ -370,6 +370,6 @@ public class HttpClientService {
             e.printStackTrace();
         }
         return multipartEntityBuilder;
-    }
+    }*/
 
 }

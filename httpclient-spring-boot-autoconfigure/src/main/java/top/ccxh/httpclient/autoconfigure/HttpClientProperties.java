@@ -34,15 +34,25 @@ public class HttpClientProperties implements Serializable {
     private Integer connectionRequestTimeout = 50000;
 
     /**
-     *  socket超时时间
+     * socket超时时间
      */
     private Integer socketTimeout = 30000;
 
-
-    private Boolean staleConnectionCheckEnabled = Boolean.TRUE;
-
+    /**
+     * 空闲永久连接检查间隔
+     */
+    private Integer validateAfterInactivity = 2000;
     private Map<String, String> header;
 
+    private CloseTask closeTask=new CloseTask();
+
+    public CloseTask getCloseTask() {
+        return closeTask;
+    }
+
+    public void setCloseTask(CloseTask closeTask) {
+        this.closeTask = closeTask;
+    }
 
     public Integer getMaxTotal() {
         return maxTotal;
@@ -84,14 +94,6 @@ public class HttpClientProperties implements Serializable {
         this.socketTimeout = socketTimeout;
     }
 
-    public Boolean getStaleConnectionCheckEnabled() {
-        return staleConnectionCheckEnabled;
-    }
-
-    public void setStaleConnectionCheckEnabled(boolean staleConnectionCheckEnabled) {
-        this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
-    }
-
 
     public Map<String, String> getHeader() {
         return header;
@@ -104,7 +106,78 @@ public class HttpClientProperties implements Serializable {
         this.header = header;
     }
 
-    public void setStaleConnectionCheckEnabled(Boolean staleConnectionCheckEnabled) {
-        this.staleConnectionCheckEnabled = staleConnectionCheckEnabled;
+    public Integer getValidateAfterInactivity() {
+        return validateAfterInactivity;
+    }
+
+    public void setValidateAfterInactivity(Integer validateAfterInactivity) {
+        this.validateAfterInactivity = validateAfterInactivity;
+    }
+
+    public static class CloseTask {
+
+        public CloseTask() {}
+
+        public CloseTask(String name,Integer idleTime, Long initialDelay, Long delay) {
+            this.idleTime = idleTime;
+            this.initialDelay = initialDelay;
+            this.delay = delay;
+        }
+        private String name="closeTask";
+
+        /**
+         * 清理多少毫秒内部活动的链接
+         */
+        private Integer idleTime=3000;
+        /**
+         * 第一次延时的时间
+         */
+        private Long initialDelay=idleTime.longValue();
+        /**
+         * 之后延时的时间
+         */
+        private Long delay=idleTime.longValue();
+
+        public Integer getIdleTime() {
+            return idleTime;
+        }
+
+        public void setIdleTime(Integer idleTime) {
+            this.idleTime = idleTime;
+        }
+
+        public Long getInitialDelay() {
+            return initialDelay;
+        }
+
+        public void setInitialDelay(Long initialDelay) {
+            this.initialDelay = initialDelay;
+        }
+
+        public Long getDelay() {
+            return delay;
+        }
+
+        public void setDelay(Long delay) {
+            this.delay = delay;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "CloseTask{" +
+                    "name='" + name + '\'' +
+                    ", idleTime=" + idleTime +
+                    ", initialDelay=" + initialDelay +
+                    ", delay=" + delay +
+                    '}';
+        }
     }
 }
