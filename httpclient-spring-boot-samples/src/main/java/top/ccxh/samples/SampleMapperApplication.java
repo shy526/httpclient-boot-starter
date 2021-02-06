@@ -21,6 +21,12 @@ public class SampleMapperApplication implements CommandLineRunner {
     @Qualifier("httpClient")
     private HttpClientService httpClientService;
 
+    @Autowired
+    @Qualifier("httpClient2")
+    private HttpClientService httpClientService2;
+
+    @Autowired
+    private HttpClientService httpClientService5;
 
     @Autowired
     ApplicationContext applicationContext;
@@ -37,11 +43,9 @@ public class SampleMapperApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("args = " + httpClientService);
-        HttpResult httpResult = httpClientService.get(String.format(s_url, 1, 1, "残雪"));
         System.out.println("httpClientService = " + httpClientService);
-       // System.out.println("httpClientService = " + httpClientService1);
-        System.out.println("httpResult = " + httpResult);
+        System.out.println("httpClientService = " + httpClientService5);
+        System.out.println("httpClientService = " + httpClientService2);
     }
 
 

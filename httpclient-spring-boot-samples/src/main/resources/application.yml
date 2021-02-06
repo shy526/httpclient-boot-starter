@@ -17,6 +17,7 @@ http:
       maxTotal: 200
       defaultMaxPerRoute: 100
       header: {etag: "11111"}
+      primary: true
       closeTask:
         name: httpClient2-close-task
         idleTime: 4000

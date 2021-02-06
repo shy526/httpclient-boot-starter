@@ -4,6 +4,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.context.properties.bind.BindResult;
@@ -43,7 +44,9 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
             Map<String, String> header = item.getValue().getHeader();
             header.putAll(commHeader);
             beanDefinitionBuilder.addConstructorArgValue(header);
-            registry.registerBeanDefinition(item.getKey(), beanDefinitionBuilder.getBeanDefinition());
+            AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
+            beanDefinition.setPrimary(item.getValue().getPrimary());
+            registry.registerBeanDefinition(item.getKey(), beanDefinition);
             LOGGER.info("HttpClientService-->{}", item.getKey());
         }
     }

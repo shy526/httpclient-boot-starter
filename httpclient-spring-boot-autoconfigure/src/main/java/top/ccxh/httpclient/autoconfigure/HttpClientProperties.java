@@ -42,7 +42,24 @@ public class HttpClientProperties implements Serializable {
      * 空闲永久连接检查间隔
      */
     private Integer validateAfterInactivity = 2000;
+
+    /**
+     * 请求头
+     */
     private Map<String, String> header;
+
+    /**
+     * 同类型优先
+     */
+    private Boolean primary=Boolean.FALSE;
+
+    public Boolean getPrimary() {
+        return primary;
+    }
+
+    public void setPrimary(Boolean primary) {
+        this.primary = primary;
+    }
 
     private CloseTask closeTask=new CloseTask();
 
