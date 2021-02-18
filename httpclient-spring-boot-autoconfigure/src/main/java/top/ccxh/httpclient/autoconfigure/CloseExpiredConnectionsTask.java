@@ -29,7 +29,7 @@ class CloseExpiredConnectionsTask implements Runnable {
         manager.closeExpiredConnections();
         //不活动的连接
         manager.closeIdleConnections(closeTask.getIdleTime(), TimeUnit.MILLISECONDS);
-        LOGGER.info(closeTask.getName()+"--->"+"closeExpiredConnectionsTask--->"+closeTask.toString());
+        LOGGER.debug("{}--->closeTask-{}-{}",closeTask.getName(),closeTask.getInitialDelay(),closeTask.getDelay());
     }
 }
 

@@ -23,3 +23,6 @@ http:
         idleTime: 4000
         initialDelay: 4000
         delay: 4000
+logging:
+  level:
+    top.ccxh.httpclient.autoconfigure.CloseExpiredConnectionsTask: debug

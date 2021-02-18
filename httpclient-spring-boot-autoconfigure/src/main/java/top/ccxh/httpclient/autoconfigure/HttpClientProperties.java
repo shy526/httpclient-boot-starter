@@ -131,6 +131,21 @@ public class HttpClientProperties implements Serializable {
         this.validateAfterInactivity = validateAfterInactivity;
     }
 
+    @Override
+    public String toString() {
+        return "HttpClientProperties{" +
+                "maxTotal=" + maxTotal +
+                ", defaultMaxPerRoute=" + defaultMaxPerRoute +
+                ", connectTimeout=" + connectTimeout +
+                ", connectionRequestTimeout=" + connectionRequestTimeout +
+                ", socketTimeout=" + socketTimeout +
+                ", validateAfterInactivity=" + validateAfterInactivity +
+                ", header=" + header +
+                ", primary=" + primary +
+                ", closeTask=" + closeTask +
+                '}';
+    }
+
     public static class CloseTask {
 
         public CloseTask() {}

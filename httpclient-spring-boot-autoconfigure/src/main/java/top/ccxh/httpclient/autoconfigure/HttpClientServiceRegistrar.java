@@ -47,7 +47,7 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
             AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
             beanDefinition.setPrimary(item.getValue().getPrimary());
             registry.registerBeanDefinition(item.getKey(), beanDefinition);
-            LOGGER.info("HttpClientService-->{}", item.getKey());
+            LOGGER.info("HttpClientService-->{}-->setting:{}", item.getKey(),item.getValue().toString());
         }
     }
 
