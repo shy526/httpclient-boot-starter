@@ -16,6 +16,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import top.ccxh.httpclient.service.HttpClientService;
 import top.ccxh.httpclient.tool.ThreadPoolUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,6 +35,7 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
             return;
         }
         Map<String, String> commHeader = httpClientsProperties.getCommHeader();
+        commHeader = commHeader == null ? new HashMap<>(10) : commHeader;
         Map<String, HttpClientProperties> httpClientConfigMap = httpClientsProperties.getClientConfig();
         for (Map.Entry<String, HttpClientProperties> item : httpClientConfigMap.entrySet()) {
             BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(HttpClientService.class);
@@ -42,12 +44,13 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
             RequestConfig httpRequestConfig = HttpClientFactory.getRequestConfig(item.getValue());
             beanDefinitionBuilder.addConstructorArgValue(httpRequestConfig);
             Map<String, String> header = item.getValue().getHeader();
+            header=header==null?new HashMap<>(10):header;
             header.putAll(commHeader);
             beanDefinitionBuilder.addConstructorArgValue(header);
             AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
             beanDefinition.setPrimary(item.getValue().getPrimary());
             registry.registerBeanDefinition(item.getKey(), beanDefinition);
-            LOGGER.info("HttpClientService-->{}-->setting:{}", item.getKey(),item.getValue().toString());
+            LOGGER.info("HttpClientService-->{}-->setting:{}", item.getKey(), item.getValue().toString());
         }
     }
 
@@ -56,4 +59,5 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
         BindResult<HttpClientServiceProperties> bind = Binder.get(environment).bind(HttpClientServiceProperties.PREFIX, HttpClientServiceProperties.class);
         this.httpClientsProperties = bind.get();
     }
+
 }
