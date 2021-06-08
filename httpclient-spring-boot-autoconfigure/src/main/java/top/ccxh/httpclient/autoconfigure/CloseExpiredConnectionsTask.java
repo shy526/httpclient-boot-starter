@@ -9,7 +9,10 @@ import top.ccxh.httpclient.tool.ThreadPoolUtils;
 
 import java.util.concurrent.TimeUnit;
 
-class CloseExpiredConnectionsTask implements Runnable {
+/**
+ * @author ccxh
+ */
+public class CloseExpiredConnectionsTask implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloseExpiredConnectionsTask.class);
     private final HttpClientConnectionManager manager;
     private final HttpClientProperties.CloseTask closeTask;

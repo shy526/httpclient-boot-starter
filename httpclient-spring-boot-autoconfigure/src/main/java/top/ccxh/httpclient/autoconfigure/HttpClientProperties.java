@@ -1,14 +1,12 @@
 package top.ccxh.httpclient.autoconfigure;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 
 /**
- * @author sjq
+ * @author ccxh
  */
 
 public class HttpClientProperties implements Serializable {

@@ -8,9 +8,11 @@ import org.springframework.util.StringUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * http统一返回结果集
+ *
  * @author ccxh
  */
 public class HttpResult implements Closeable {
@@ -52,7 +54,7 @@ public class HttpResult implements Closeable {
     public String getEntityStr(String encode) {
         HttpEntity entity = null;
         try {
-            if (httpStatus.equals(HttpStatus.SC_OK)&&StringUtils.isEmpty(this.entityStr)) {
+            if (httpStatus.equals(HttpStatus.SC_OK) && StringUtils.isEmpty(this.entityStr)) {
                 entity = this.response.getEntity();
                 this.entityStr = EntityUtils.toString(this.response.getEntity(), encode);
             }

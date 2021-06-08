@@ -1,27 +1,20 @@
 package top.ccxh.httpclient.autoconfigure;
 
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import top.ccxh.httpclient.service.HttpClientService;
-import top.ccxh.httpclient.tool.ThreadPoolUtils;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * @author sjq
+ * @author ccxh
  */
 public class HttpClientFactory {
 
@@ -58,13 +51,8 @@ public class HttpClientFactory {
      */
     public static SSLConnectionSocketFactory getSslConnectionSocketFactory() {
         try {
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-                // 信任所有
-                @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    return true;
-                }
-            }).build();
+            SSLContext sslContext = new SSLContextBuilder()
+                    .loadTrustMaterial(null, (X509Certificate[] chain, String authType)-> true).build();
             HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
             return new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
         } catch (Exception e) {

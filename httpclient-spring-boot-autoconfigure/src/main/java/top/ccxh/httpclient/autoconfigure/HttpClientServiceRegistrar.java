@@ -14,15 +14,13 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import top.ccxh.httpclient.service.HttpClientService;
-import top.ccxh.httpclient.tool.ThreadPoolUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * @author sjq
+ * 注册httpClientService
+ * @author ccxh
  */
 
 public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
