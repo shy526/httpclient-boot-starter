@@ -4,6 +4,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.io.Closeable;
@@ -16,6 +18,7 @@ import java.nio.charset.Charset;
  * @author ccxh
  */
 public class HttpResult implements Closeable {
+    private final static Logger log = LoggerFactory.getLogger(HttpResult.class);
     private Integer httpStatus;
     private CloseableHttpResponse response;
     private String entityStr;
@@ -59,7 +62,7 @@ public class HttpResult implements Closeable {
                 this.entityStr = EntityUtils.toString(this.response.getEntity(), encode);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         consumeHttpEntity(entity);
         return this.entityStr;
@@ -69,20 +72,11 @@ public class HttpResult implements Closeable {
         return this.getEntityStr("UTF-8");
     }
 
-
-    @Override
-    protected void finalize() throws Throwable {
-        consume();
-        super.finalize();
-
-    }
-
     private void consumeHttpEntity(HttpEntity httpEntity) {
         if (httpEntity != null) {
             try {
                 EntityUtils.consume(httpEntity);
             } catch (IOException e) {
-                e.printStackTrace();
             } finally {
                 httpEntity = null;
             }
@@ -95,7 +89,6 @@ public class HttpResult implements Closeable {
             try {
                 response.close();
             } catch (IOException e) {
-                e.printStackTrace();
             } finally {
                 response = null;
             }
