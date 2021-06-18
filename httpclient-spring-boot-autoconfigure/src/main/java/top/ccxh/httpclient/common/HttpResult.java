@@ -28,7 +28,6 @@ public class HttpResult implements Closeable {
     }
 
     public HttpResult(CloseableHttpResponse response) {
-
         this.response = response;
         if (this.response != null) {
             this.httpStatus = response.getStatusLine().getStatusCode();
@@ -64,7 +63,7 @@ public class HttpResult implements Closeable {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        consumeHttpEntity(entity);
+        consume();
         return this.entityStr;
     }
 
