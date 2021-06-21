@@ -54,10 +54,8 @@ public class HttpResult implements Closeable {
      * @return String
      */
     public String getEntityStr(String encode) {
-        HttpEntity entity = null;
         try {
             if (httpStatus.equals(HttpStatus.SC_OK) && StringUtils.isEmpty(this.entityStr)) {
-                entity = this.response.getEntity();
                 this.entityStr = EntityUtils.toString(this.response.getEntity(), encode);
             }
         } catch (Exception e) {
