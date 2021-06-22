@@ -51,6 +51,19 @@ public class HttpClientProperties implements Serializable {
      */
     private Boolean primary=Boolean.FALSE;
 
+    /**
+     * 是否重试
+     */
+    private Boolean requestSentRetryEnabled=Boolean.FALSE;
+
+    public Boolean getRequestSentRetryEnabled() {
+        return requestSentRetryEnabled;
+    }
+
+    public void setRequestSentRetryEnabled(Boolean requestSentRetryEnabled) {
+        this.requestSentRetryEnabled = requestSentRetryEnabled;
+    }
+
     public Boolean getPrimary() {
         return primary;
     }

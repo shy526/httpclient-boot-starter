@@ -4,6 +4,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -21,7 +22,7 @@ public class HttpClientFactory {
     public static CloseableHttpClient getHttpClient(HttpClientProperties properties) {
         PoolingHttpClientConnectionManager manager = getHttpClientConnectionManager(properties);
         SSLConnectionSocketFactory sslFactory = getSslConnectionSocketFactory();
-        HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory);
+        HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory, properties);
         return getCloseableHttpClient(httpBuilder);
     }
 
@@ -40,7 +41,7 @@ public class HttpClientFactory {
         //并发数
         httpClientConnectionManager.setDefaultMaxPerRoute(properties.getDefaultMaxPerRoute());
         httpClientConnectionManager.setValidateAfterInactivity(properties.getValidateAfterInactivity());
-        CloseExpiredConnectionsTask.start(httpClientConnectionManager,properties.getCloseTask());
+        CloseExpiredConnectionsTask.start(httpClientConnectionManager, properties.getCloseTask());
         return httpClientConnectionManager;
     }
 
@@ -52,7 +53,7 @@ public class HttpClientFactory {
     public static SSLConnectionSocketFactory getSslConnectionSocketFactory() {
         try {
             SSLContext sslContext = new SSLContextBuilder()
-                    .loadTrustMaterial(null, (X509Certificate[] chain, String authType)-> true).build();
+                    .loadTrustMaterial(null, (X509Certificate[] chain, String authType) -> true).build();
             HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
             return new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
         } catch (Exception e) {
@@ -68,12 +69,16 @@ public class HttpClientFactory {
      * @param sslFactory  sslFactory
      * @return HttpClientBuilder
      */
-    public static HttpClientBuilder getHttpClientBuilder(PoolingHttpClientConnectionManager poolManager, SSLConnectionSocketFactory sslFactory) {
+    public static HttpClientBuilder getHttpClientBuilder(PoolingHttpClientConnectionManager poolManager, SSLConnectionSocketFactory sslFactory
+            , HttpClientProperties properties) {
         //HttpClientBuilder中的构造方法被protected修饰，所以这里不能直接使用new来实例化一个HttpClientBuilder，
         //可以使用HttpClientBuilder提供的静态方法create()来获取HttpClientBuilder对象
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setConnectionManager(poolManager);
         httpClientBuilder.setSSLSocketFactory(sslFactory);
+        if (!properties.getRequestSentRetryEnabled()) {
+            httpClientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
+        }
         return httpClientBuilder;
     }
 

@@ -9,6 +9,7 @@ http:
       maxTotal: 200
       defaultMaxPerRoute: 100
       header: {etag: "1"}
+      requestSentRetryEnabled: false
     httpClient2:
       connectionRequestTimeout: 10000
       connectTimeout: 50000
@@ -18,6 +19,7 @@ http:
       defaultMaxPerRoute: 100
       header: {etag: "2"}
       primary: true
+      requestSentRetryEnabled: false
       closeTask:
         name: httpClient2-close-task
         idleTime: 4000
