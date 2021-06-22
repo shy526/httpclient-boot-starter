@@ -80,7 +80,7 @@ public class HttpResult implements Closeable {
         }
     }
 
-    private void consume() {
+    public void consume() {
         if (response != null) {
             consumeHttpEntity(response.getEntity());
             try {
