@@ -9,7 +9,9 @@ import java.util.Map;
 /**
  * @author sjq
  */
-@ConfigurationProperties(prefix = HttpClientServiceProperties.PREFIX)
+
+@Deprecated
+//@ConfigurationProperties(prefix = HttpClientServiceProperties.PREFIX)
 public class HttpClientServiceProperties implements Serializable {
     public static final String PREFIX = "http";
     /**

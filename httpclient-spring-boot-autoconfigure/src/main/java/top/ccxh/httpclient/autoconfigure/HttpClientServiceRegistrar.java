@@ -22,7 +22,7 @@ import java.util.Map;
  * 注册httpClientService
  * @author ccxh
  */
-
+@Deprecated
 public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientServiceRegistrar.class);
     private HttpClientServiceProperties httpClientsProperties;
@@ -46,7 +46,7 @@ public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar
             header.putAll(commHeader);
             beanDefinitionBuilder.addConstructorArgValue(header);
             AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
-            beanDefinition.setPrimary(item.getValue().getPrimary());
+            /*beanDefinition.setPrimary(item.getValue().getPrimary());*/
             registry.registerBeanDefinition(item.getKey(), beanDefinition);
             LOGGER.info("HttpClientService-->{}-->setting:{}", item.getKey(), item.getValue().toString());
         }

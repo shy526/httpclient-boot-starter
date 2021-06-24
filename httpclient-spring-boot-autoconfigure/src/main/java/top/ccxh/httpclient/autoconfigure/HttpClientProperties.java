@@ -1,5 +1,8 @@
 package top.ccxh.httpclient.autoconfigure;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Primary;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,9 +11,8 @@ import java.util.Map;
 /**
  * @author ccxh
  */
-
 public class HttpClientProperties implements Serializable {
-
+    public static final String PREFIX = "http-client-service";
     /**
      * 连接池最大连接数
      */
@@ -44,17 +46,12 @@ public class HttpClientProperties implements Serializable {
     /**
      * 请求头
      */
-    private Map<String, String> header;
-
-    /**
-     * 同类型优先
-     */
-    private Boolean primary=Boolean.FALSE;
+    private Map<String, String> header = new HashMap<>();
 
     /**
      * 是否重试
      */
-    private Boolean requestSentRetryEnabled=Boolean.FALSE;
+    private Boolean requestSentRetryEnabled = Boolean.FALSE;
 
     public Boolean getRequestSentRetryEnabled() {
         return requestSentRetryEnabled;
@@ -64,15 +61,7 @@ public class HttpClientProperties implements Serializable {
         this.requestSentRetryEnabled = requestSentRetryEnabled;
     }
 
-    public Boolean getPrimary() {
-        return primary;
-    }
-
-    public void setPrimary(Boolean primary) {
-        this.primary = primary;
-    }
-
-    private CloseTask closeTask=new CloseTask();
+    private CloseTask closeTask = new CloseTask();
 
     public CloseTask getCloseTask() {
         return closeTask;
@@ -129,7 +118,7 @@ public class HttpClientProperties implements Serializable {
 
     public void setHeader(Map<String, String> header) {
         if (header == null) {
-            header = new HashMap<>(1);
+            return;
         }
         this.header = header;
     }
@@ -142,44 +131,32 @@ public class HttpClientProperties implements Serializable {
         this.validateAfterInactivity = validateAfterInactivity;
     }
 
-    @Override
-    public String toString() {
-        return "HttpClientProperties{" +
-                "maxTotal=" + maxTotal +
-                ", defaultMaxPerRoute=" + defaultMaxPerRoute +
-                ", connectTimeout=" + connectTimeout +
-                ", connectionRequestTimeout=" + connectionRequestTimeout +
-                ", socketTimeout=" + socketTimeout +
-                ", validateAfterInactivity=" + validateAfterInactivity +
-                ", header=" + header +
-                ", primary=" + primary +
-                ", closeTask=" + closeTask +
-                '}';
-    }
 
     public static class CloseTask {
 
-        public CloseTask() {}
+        public CloseTask() {
+        }
 
-        public CloseTask(String name,Integer idleTime, Long initialDelay, Long delay) {
+        public CloseTask(String name, Integer idleTime, Long initialDelay, Long delay) {
             this.idleTime = idleTime;
             this.initialDelay = initialDelay;
             this.delay = delay;
         }
-        private String name="closeTask";
+
+        private String name = "closeTask";
 
         /**
          * 清理多少毫秒内部活动的链接
          */
-        private Integer idleTime=3000;
+        private Integer idleTime = 3000;
         /**
          * 第一次延时的时间
          */
-        private Long initialDelay=idleTime.longValue();
+        private Long initialDelay = idleTime.longValue();
         /**
          * 之后延时的时间
          */
-        private Long delay=idleTime.longValue();
+        private Long delay = idleTime.longValue();
 
         public Integer getIdleTime() {
             return idleTime;
