@@ -15,13 +15,13 @@ import top.ccxh.httpclient.service.HttpClientService;
 @Configuration
 public class HttpClientConfig {
 
-    @Bean("my")
-    @ConfigurationProperties(prefix = "http-client-service4")
+    @Bean("myProperties")
+    @ConfigurationProperties(prefix = "my-http")
     public HttpClientProperties geHttpClientProperties() {
         return new HttpClientProperties();
     }
     @Bean("myHttp")
-    public HttpClientService getHttpClientService(@Qualifier("my") HttpClientProperties httpClientProperties ) {
+    public HttpClientService getHttpClientService(@Qualifier("myProperties") HttpClientProperties httpClientProperties ) {
         return HttpClientFactory.getHttpClientService(httpClientProperties);
     }
 }

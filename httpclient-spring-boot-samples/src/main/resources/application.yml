@@ -5,24 +5,23 @@ httpClientService:
   validateAfterInactivity: 2000
   maxTotal: 200
   defaultMaxPerRoute: 100
-  primary: true
   requestSentRetryEnabled: false
   closeTask:
     name: httpClient2-close-task
     idleTime: 4000
     initialDelay: 4000
     delay: 4000
-
-httpClientService4:
-  connectionRequestTimeout: 1
-  connectTimeout: 5000
-  socketTimeout: 30000
+myHttp:
+  connectionRequestTimeout: 1000
+  connectTimeout: 1000
+  socketTimeout: 4000
   validateAfterInactivity: 2000
   maxTotal: 200
   defaultMaxPerRoute: 100
+  header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
   requestSentRetryEnabled: false
   closeTask:
-    name: httpClient2-close-task
+    name: testAgent
     idleTime: 4000
     initialDelay: 4000
     delay: 4000
