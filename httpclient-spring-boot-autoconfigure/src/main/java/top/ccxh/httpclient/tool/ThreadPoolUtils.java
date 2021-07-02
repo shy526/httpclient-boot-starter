@@ -123,7 +123,7 @@ public class ThreadPoolUtils {
      * @return ThreadPoolExecutor
      */
     public static ThreadPoolExecutor getThreadPool(String beforeName, ThreadPoolConfig threadPoolConfig) {
-        NamedThreadFactory namedThreadFactory = getNamedThreadFactory(beforeName);
+        NamedThreadFactory namedThreadFactory = getNamedThreadFactory(beforeName, false);
         if (threadPoolConfig == null) {
             threadPoolConfig = new ThreadPoolConfig();
         }
@@ -132,18 +132,24 @@ public class ThreadPoolUtils {
                 threadPoolConfig.getWorkQueue(), namedThreadFactory, threadPoolConfig.getRejectedExecutionHandler());
     }
 
-    private static NamedThreadFactory getNamedThreadFactory(String beforeName) {
+    private static NamedThreadFactory getNamedThreadFactory(String beforeName, boolean daemon) {
         NamedThreadFactory namedThreadFactory = null;
         if ("".equals(beforeName) || beforeName == null) {
             namedThreadFactory = new NamedThreadFactory();
         } else {
-            namedThreadFactory = new NamedThreadFactory(beforeName);
+            namedThreadFactory = new NamedThreadFactory(beforeName, daemon);
         }
         return namedThreadFactory;
     }
 
+
     public static ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor(String beforeName, int corePoolSize) {
-        NamedThreadFactory namedThreadFactory = getNamedThreadFactory(beforeName);
+        NamedThreadFactory namedThreadFactory = getNamedThreadFactory(beforeName, false);
+        return new ScheduledThreadPoolExecutor(corePoolSize, namedThreadFactory);
+    }
+
+    public static ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor(String beforeName, int corePoolSize, boolean daemon) {
+        NamedThreadFactory namedThreadFactory = getNamedThreadFactory(beforeName, daemon);
         return new ScheduledThreadPoolExecutor(corePoolSize, namedThreadFactory);
     }
 
@@ -154,9 +160,11 @@ public class ThreadPoolUtils {
          */
         private String beforeName = "task";
         private final AtomicInteger threadNumberAtomicInteger = new AtomicInteger(1);
+        private boolean daemon;
 
-        public NamedThreadFactory(String beforeName) {
+        public NamedThreadFactory(String beforeName, boolean daemon) {
             this.beforeName = beforeName;
+            this.daemon = daemon;
         }
 
         public NamedThreadFactory() {
@@ -167,7 +175,7 @@ public class ThreadPoolUtils {
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r, String.format(Locale.CHINA, "%s-%d", this.beforeName, threadNumberAtomicInteger.getAndIncrement()));
             //是否是守护线程
-            thread.setDaemon(false);
+            thread.setDaemon(daemon);
             //设置优先级 1~10 有3个常量 默认 Thread.MIN_PRIORITY*/
             thread.setPriority(Thread.NORM_PRIORITY);
             return thread;
