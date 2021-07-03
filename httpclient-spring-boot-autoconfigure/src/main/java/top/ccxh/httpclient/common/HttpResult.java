@@ -19,13 +19,12 @@ import java.nio.charset.Charset;
  */
 public class HttpResult implements Closeable {
     private final static Logger log = LoggerFactory.getLogger(HttpResult.class);
-    private Integer httpStatus;
+    private Integer httpStatus=0;
     private CloseableHttpResponse response;
     private String entityStr;
     private Exception error;
 
     public HttpResult() {
-        httpStatus = 0;
     }
 
     public HttpResult(Exception error) {
