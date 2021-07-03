@@ -22,9 +22,14 @@ public class HttpResult implements Closeable {
     private Integer httpStatus;
     private CloseableHttpResponse response;
     private String entityStr;
+    private Exception error;
 
     public HttpResult() {
         httpStatus = 0;
+    }
+
+    public HttpResult(Exception error) {
+        this.error = error;
     }
 
     public HttpResult(CloseableHttpResponse response) {
@@ -95,5 +100,9 @@ public class HttpResult implements Closeable {
     @Override
     public void close() throws IOException {
         this.consume();
+    }
+
+    public static Logger getLog() {
+        return log;
     }
 }

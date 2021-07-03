@@ -63,10 +63,11 @@ public class HttpClientService {
         try {
             CloseableHttpResponse response = httpClient.execute(httpMethod);
             result = new HttpResult(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (logFlag) {
                 LOGGER.error(e.getMessage(), e);
             }
+            result = new HttpResult(e);
         }
         return result;
     }
