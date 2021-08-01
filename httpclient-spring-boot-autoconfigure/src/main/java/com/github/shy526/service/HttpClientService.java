@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author ccxh
+ * @author shy526
  */
 public class HttpClientService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);

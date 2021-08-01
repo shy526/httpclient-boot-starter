@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 /**
- * @author ccxh
+ * @author shy526
  */
 @ConditionalOnClass
 @Configuration

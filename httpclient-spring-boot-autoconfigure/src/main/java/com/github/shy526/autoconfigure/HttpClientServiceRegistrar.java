@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * 注册httpClientService
- * @author ccxh
+ * @author shy526
  */
 @Deprecated
 public class HttpClientServiceRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {

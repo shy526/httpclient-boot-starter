@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 创建线程池帮助类
  *
- * @author ccxh
+ * @author shy526
  */
 public class ThreadPoolUtils {
     private ThreadPoolConfig threadPoolConfig = new ThreadPoolConfig();

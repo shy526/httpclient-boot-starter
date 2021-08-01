@@ -10,7 +10,7 @@ import com.github.shy526.service.HttpClientService;
 
 /**
  * 多client配置实例
- * @author qing
+ * @author shy526
  */
 @Configuration
 public class HttpClientConfig {

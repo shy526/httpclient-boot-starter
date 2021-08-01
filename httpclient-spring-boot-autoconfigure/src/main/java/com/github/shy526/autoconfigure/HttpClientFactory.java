@@ -15,7 +15,7 @@ import javax.net.ssl.SSLContext;
 import java.security.cert.X509Certificate;
 
 /**
- * @author ccxh
+ * @author shy526
  */
 public class HttpClientFactory {
 

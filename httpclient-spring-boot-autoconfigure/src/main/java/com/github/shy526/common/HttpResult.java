@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * http统一返回结果集
  *
- * @author ccxh
+ * @author shy526
  */
 public class HttpResult implements Closeable {
     private final static Logger log = LoggerFactory.getLogger(HttpResult.class);

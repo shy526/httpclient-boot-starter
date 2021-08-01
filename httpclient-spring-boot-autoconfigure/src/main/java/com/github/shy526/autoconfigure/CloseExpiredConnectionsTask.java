@@ -10,7 +10,7 @@ import com.github.shy526.tool.ThreadPoolUtils;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author ccxh
+ * @author shy526
  */
 public class CloseExpiredConnectionsTask implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloseExpiredConnectionsTask.class);

@@ -1,15 +1,12 @@
 package com.github.shy526.autoconfigure;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Primary;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 
 /**
- * @author ccxh
+ * @author shy526
  */
 public class HttpClientProperties implements Serializable {
     public static final String PREFIX = "http-client-service";
