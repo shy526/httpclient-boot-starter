@@ -1,11 +1,11 @@
-package top.ccxh.httpclient.autoconfigure;
+package com.github.shy526.autoconfigure;
 
 
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.ccxh.httpclient.tool.ThreadPoolUtils;
+import com.github.shy526.tool.ThreadPoolUtils;
 
 import java.util.concurrent.TimeUnit;
 

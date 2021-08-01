@@ -1,4 +1,4 @@
-package top.ccxh.httpclient.service;
+package com.github.shy526.service;
 
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
@@ -12,12 +12,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.ccxh.httpclient.common.HttpResult;
+import com.github.shy526.common.HttpResult;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;

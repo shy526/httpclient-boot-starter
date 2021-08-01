@@ -1,12 +1,12 @@
-package top.ccxh.samples;
+package com.github.shy526.samples;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.ccxh.httpclient.autoconfigure.HttpClientFactory;
-import top.ccxh.httpclient.autoconfigure.HttpClientProperties;
-import top.ccxh.httpclient.service.HttpClientService;
+import com.github.shy526.autoconfigure.HttpClientFactory;
+import com.github.shy526.autoconfigure.HttpClientProperties;
+import com.github.shy526.service.HttpClientService;
 
 /**
  * 多client配置实例

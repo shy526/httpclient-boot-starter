@@ -1,4 +1,4 @@
-package top.ccxh.httpclient.autoconfigure;
+package com.github.shy526.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Primary;

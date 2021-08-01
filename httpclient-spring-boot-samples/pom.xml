@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>httpclient-boot-starter</artifactId>
-        <groupId>top.ccxh</groupId>
+        <groupId>com.github.shy526</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -25,9 +25,8 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
         <dependency>
-            <groupId>top.ccxh</groupId>
+            <groupId>com.github.shy526</groupId>
             <artifactId>httpclient-spring-boot-starter</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

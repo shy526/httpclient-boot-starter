@@ -1,5 +1,6 @@
-package top.ccxh.httpclient.autoconfigure;
+package com.github.shy526.autoconfigure;
 
+import com.github.shy526.service.HttpClientService;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -8,7 +9,6 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
-import top.ccxh.httpclient.service.HttpClientService;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;

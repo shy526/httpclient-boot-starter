@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-top.ccxh.httpclient.autoconfigure.HttpClientAutoConfiguration
+com.github.shy526.autoconfigure.HttpClientAutoConfiguration

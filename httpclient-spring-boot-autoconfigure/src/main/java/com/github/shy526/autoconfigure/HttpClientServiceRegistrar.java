@@ -1,5 +1,6 @@
-package top.ccxh.httpclient.autoconfigure;
+package com.github.shy526.autoconfigure;
 
+import com.github.shy526.service.HttpClientService;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
-import top.ccxh.httpclient.service.HttpClientService;
 
 import java.util.HashMap;
 import java.util.Map;

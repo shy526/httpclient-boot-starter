@@ -1,4 +1,4 @@
-package top.ccxh.httpclient.common;
+package com.github.shy526.common;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -10,7 +10,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * http统一返回结果集

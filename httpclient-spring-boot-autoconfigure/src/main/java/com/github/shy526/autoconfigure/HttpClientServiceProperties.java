@@ -1,6 +1,4 @@
-package top.ccxh.httpclient.autoconfigure;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
+package com.github.shy526.autoconfigure;
 
 import java.io.Serializable;
 import java.util.HashMap;
