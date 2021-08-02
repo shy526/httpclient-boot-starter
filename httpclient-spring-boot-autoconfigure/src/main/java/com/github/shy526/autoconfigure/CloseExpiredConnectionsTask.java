@@ -1,6 +1,7 @@
 package com.github.shy526.autoconfigure;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author shy526
  */
+@Slf4j
 public class CloseExpiredConnectionsTask implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloseExpiredConnectionsTask.class);
     private final HttpClientConnectionManager manager;
@@ -33,7 +35,7 @@ public class CloseExpiredConnectionsTask implements Runnable {
         manager.closeExpiredConnections();
         //不活动的连接
         manager.closeIdleConnections(closeTask.getIdleTime(), TimeUnit.MILLISECONDS);
-        LOGGER.debug("{}--->closeTask-{}-{}", closeTask.getName(), closeTask.getInitialDelay(), closeTask.getDelay());
+        log.error("{}--->closeTask-{}-{}", closeTask.getName(), closeTask.getInitialDelay(), closeTask.getDelay());
     }
 }
 

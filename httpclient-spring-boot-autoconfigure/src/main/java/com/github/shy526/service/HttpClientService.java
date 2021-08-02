@@ -1,5 +1,7 @@
 package com.github.shy526.service;
 
+import com.github.shy526.common.HttpResult;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -10,9 +12,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.github.shy526.common.HttpResult;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,10 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 实际实现类
  * @author shy526
  */
+@Slf4j
 public class HttpClientService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
     private final CloseableHttpClient httpClient;
 
     private final RequestConfig requestConfig;
@@ -58,13 +58,13 @@ public class HttpClientService {
 
     public HttpResult execute(HttpRequestBase httpMethod, boolean logFlag) {
         HttpResult result = null;
-        LOGGER.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
+        log.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
         try {
             CloseableHttpResponse response = httpClient.execute(httpMethod);
             result = new HttpResult(response);
         } catch (Exception e) {
             if (logFlag) {
-                LOGGER.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
             result = new HttpResult(e);
         }
@@ -88,7 +88,7 @@ public class HttpClientService {
                 }
                 url = builder.build().toString();
             } catch (URISyntaxException e) {
-                LOGGER.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
 
         }
@@ -141,7 +141,7 @@ public class HttpClientService {
             }
             requestBase.setEntity(result);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return requestBase;
