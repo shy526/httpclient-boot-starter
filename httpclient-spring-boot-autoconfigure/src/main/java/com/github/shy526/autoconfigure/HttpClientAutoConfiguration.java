@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 /**
+ * httpClientService 自动装配
  * @author shy526
  */
 @ConditionalOnClass

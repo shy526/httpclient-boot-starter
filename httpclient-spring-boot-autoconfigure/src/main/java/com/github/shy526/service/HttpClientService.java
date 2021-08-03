@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 实际实现类
+ * HttpClientService 实际实现类
  *
  * @author shy526
  */

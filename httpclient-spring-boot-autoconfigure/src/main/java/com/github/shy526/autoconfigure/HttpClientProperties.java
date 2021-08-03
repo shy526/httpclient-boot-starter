@@ -8,6 +8,7 @@ import java.util.Map;
 
 
 /**
+ * HttpClientService 配置类
  * @author shy526
  */
 @Data
