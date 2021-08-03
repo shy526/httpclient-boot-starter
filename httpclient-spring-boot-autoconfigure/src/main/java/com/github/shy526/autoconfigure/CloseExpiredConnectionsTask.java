@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class CloseExpiredConnectionsTask implements Runnable {
     private final HttpClientConnectionManager manager;
     private final HttpClientProperties.CloseTask closeTask;
+    private static final Long INITIAL_DELAY=3000L;
 
     public CloseExpiredConnectionsTask(HttpClientConnectionManager manager, HttpClientProperties.CloseTask closeTask) {
         this.manager = manager;
@@ -22,8 +23,11 @@ public class CloseExpiredConnectionsTask implements Runnable {
     }
 
     public static void start(PoolingHttpClientConnectionManager httpClientConnectionManager, HttpClientProperties.CloseTask closeTask) {
-        ThreadPoolUtils.getScheduledThreadPoolExecutor(closeTask.getName(), 1, true).scheduleWithFixedDelay(
-                new CloseExpiredConnectionsTask(httpClientConnectionManager, closeTask), closeTask.getInitialDelay(), closeTask.getDelay(), TimeUnit.MILLISECONDS);
+        ThreadPoolUtils.getScheduledThreadPoolExecutor(closeTask.getName(), 1, true)
+                .scheduleWithFixedDelay(new CloseExpiredConnectionsTask(httpClientConnectionManager, closeTask),
+                        INITIAL_DELAY, closeTask.getDelay()
+                , TimeUnit.MILLISECONDS);
+        log.info("start close connections:{}-->{}-->{}", closeTask.getName(),closeTask.getDelay(),closeTask.getIdleTime());
     }
 
     @Override
@@ -32,7 +36,7 @@ public class CloseExpiredConnectionsTask implements Runnable {
         manager.closeExpiredConnections();
         //不活动的连接
         manager.closeIdleConnections(closeTask.getIdleTime(), TimeUnit.MILLISECONDS);
-        log.debug("{}--->closeTask-{}-{}", closeTask.getName(), closeTask.getInitialDelay(), closeTask.getDelay());
+        log.debug("{}-->{}-->{}", closeTask.getName(),closeTask.getDelay(),closeTask.getIdleTime());
     }
 }
 

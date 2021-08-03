@@ -10,5 +10,4 @@ httpClientService:
   closeTask:
     name: httpClient2-close-task
     idleTime: 4000
-    initialDelay: 4000
     delay: 4000

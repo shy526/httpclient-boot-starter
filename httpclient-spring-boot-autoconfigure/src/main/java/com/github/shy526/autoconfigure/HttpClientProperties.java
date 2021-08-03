@@ -63,23 +63,17 @@ public class HttpClientProperties implements Serializable {
 
         public CloseTask() {
         }
-
-        public CloseTask(String name, Integer idleTime, Long initialDelay, Long delay) {
+        public CloseTask(String name, Integer idleTime, Long delay) {
             this.idleTime = idleTime;
-            this.initialDelay = initialDelay;
+
             this.delay = delay;
         }
-
         private String name = "closeTask";
 
         /**
          * 清理多少毫秒内部活动的链接
          */
         private Integer idleTime = 3000;
-        /**
-         * 第一次延时的时间
-         */
-        private Long initialDelay = idleTime.longValue();
         /**
          * 之后延时的时间
          */
