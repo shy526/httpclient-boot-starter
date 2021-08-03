@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author shy526
+ *-@ConfigurationProperties(prefix = HttpClientServiceProperties.PREFIX)
+ *@author shy526
  */
-
 @Deprecated
-//@ConfigurationProperties(prefix = HttpClientServiceProperties.PREFIX)
 public class HttpClientServiceProperties implements Serializable {
     public static final String PREFIX = "http";
     /**
@@ -35,7 +34,7 @@ public class HttpClientServiceProperties implements Serializable {
 
     public void setCommHeader(Map<String, String> commHeader) {
         if (commHeader == null) {
-            commHeader = new HashMap<>();
+            commHeader = new HashMap<>(20);
         }
         this.commHeader = commHeader;
     }
