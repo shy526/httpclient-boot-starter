@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * 实际实现类
+ *
  * @author shy526
  */
 @Slf4j
@@ -103,19 +104,17 @@ public class HttpClientService {
      * @param request request
      */
     public HttpRequestBase httpSetHeader(Map<String, String> header, HttpRequestBase request) {
-        if (null != defaultHeader) {
-            if (null != header) {
-                for (Map.Entry<String, String> entry : defaultHeader.entrySet()) {
-                    request.setHeader(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-        if (null != header) {
-            for (Map.Entry<String, String> entry : header.entrySet()) {
-                request.setHeader(entry.getKey(), entry.getValue());
-            }
-        }
+        setHeader(request, defaultHeader);
+        setHeader(request, header);
         return request;
+    }
+
+    private void setHeader(HttpRequestBase request, Map<String, String> header) {
+        if (null != header) {
+            header.forEach((k, v) -> {
+                request.setHeader(k, v);
+            });
+        }
     }
 
     /**
