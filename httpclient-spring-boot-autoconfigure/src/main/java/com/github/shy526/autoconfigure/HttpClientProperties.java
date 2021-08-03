@@ -1,5 +1,7 @@
 package com.github.shy526.autoconfigure;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.Map;
 /**
  * @author shy526
  */
+@Data
 public class HttpClientProperties implements Serializable {
     public static final String PREFIX = "http-client-service";
     /**
@@ -50,85 +53,12 @@ public class HttpClientProperties implements Serializable {
      */
     private Boolean requestSentRetryEnabled = Boolean.FALSE;
 
-    public Boolean getRequestSentRetryEnabled() {
-        return requestSentRetryEnabled;
-    }
-
-    public void setRequestSentRetryEnabled(Boolean requestSentRetryEnabled) {
-        this.requestSentRetryEnabled = requestSentRetryEnabled;
-    }
 
     private CloseTask closeTask = new CloseTask();
 
-    public CloseTask getCloseTask() {
-        return closeTask;
-    }
-
-    public void setCloseTask(CloseTask closeTask) {
-        this.closeTask = closeTask;
-    }
-
-    public Integer getMaxTotal() {
-        return maxTotal;
-    }
-
-    public void setMaxTotal(Integer maxTotal) {
-        this.maxTotal = maxTotal;
-    }
-
-    public Integer getDefaultMaxPerRoute() {
-        return defaultMaxPerRoute;
-    }
-
-    public void setDefaultMaxPerRoute(Integer defaultMaxPerRoute) {
-        this.defaultMaxPerRoute = defaultMaxPerRoute;
-    }
-
-    public Integer getConnectTimeout() {
-        return connectTimeout;
-    }
-
-    public void setConnectTimeout(Integer connectTimeout) {
-        this.connectTimeout = connectTimeout;
-    }
-
-    public Integer getConnectionRequestTimeout() {
-        return connectionRequestTimeout;
-    }
-
-    public void setConnectionRequestTimeout(Integer connectionRequestTimeout) {
-        this.connectionRequestTimeout = connectionRequestTimeout;
-    }
-
-    public Integer getSocketTimeout() {
-        return socketTimeout;
-    }
-
-    public void setSocketTimeout(Integer socketTimeout) {
-        this.socketTimeout = socketTimeout;
-    }
 
 
-    public Map<String, String> getHeader() {
-        return header;
-    }
-
-    public void setHeader(Map<String, String> header) {
-        if (header == null) {
-            return;
-        }
-        this.header = header;
-    }
-
-    public Integer getValidateAfterInactivity() {
-        return validateAfterInactivity;
-    }
-
-    public void setValidateAfterInactivity(Integer validateAfterInactivity) {
-        this.validateAfterInactivity = validateAfterInactivity;
-    }
-
-
+    @Data
     public static class CloseTask {
 
         public CloseTask() {
@@ -155,46 +85,5 @@ public class HttpClientProperties implements Serializable {
          */
         private Long delay = idleTime.longValue();
 
-        public Integer getIdleTime() {
-            return idleTime;
-        }
-
-        public void setIdleTime(Integer idleTime) {
-            this.idleTime = idleTime;
-        }
-
-        public Long getInitialDelay() {
-            return initialDelay;
-        }
-
-        public void setInitialDelay(Long initialDelay) {
-            this.initialDelay = initialDelay;
-        }
-
-        public Long getDelay() {
-            return delay;
-        }
-
-        public void setDelay(Long delay) {
-            this.delay = delay;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "CloseTask{" +
-                    "name='" + name + '\'' +
-                    ", idleTime=" + idleTime +
-                    ", initialDelay=" + initialDelay +
-                    ", delay=" + delay +
-                    '}';
-        }
     }
 }

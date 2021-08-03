@@ -32,7 +32,7 @@ public class CloseExpiredConnectionsTask implements Runnable {
         manager.closeExpiredConnections();
         //不活动的连接
         manager.closeIdleConnections(closeTask.getIdleTime(), TimeUnit.MILLISECONDS);
-        log.error("{}--->closeTask-{}-{}", closeTask.getName(), closeTask.getInitialDelay(), closeTask.getDelay());
+        log.debug("{}--->closeTask-{}-{}", closeTask.getName(), closeTask.getInitialDelay(), closeTask.getDelay());
     }
 }
 

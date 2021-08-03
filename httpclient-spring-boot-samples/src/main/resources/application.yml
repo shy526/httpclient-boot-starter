@@ -21,12 +21,6 @@ myHttp:
   defaultMaxPerRoute: 100
   header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
   requestSentRetryEnabled: false
-  closeTask:
-    name: testAgent
-    idleTime: 4000
-    initialDelay: 4000
-    delay: 4000
-
 logging:
   level:
     com.github.shy526.autoconfigure.CloseExpiredConnectionsTask: debug
