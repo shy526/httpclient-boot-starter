@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author shy526
  */
 public class ThreadPoolUtils {
-    private ThreadPoolConfig threadPoolConfig = new ThreadPoolConfig();
 
     /**
      * 线程池参数

@@ -1,12 +1,10 @@
 package com.github.shy526.autoconfigure;
 
 
+import com.github.shy526.tool.ThreadPoolUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.github.shy526.tool.ThreadPoolUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +13,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class CloseExpiredConnectionsTask implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloseExpiredConnectionsTask.class);
     private final HttpClientConnectionManager manager;
     private final HttpClientProperties.CloseTask closeTask;
 

@@ -32,7 +32,7 @@ public class HttpClientService {
 
     private final RequestConfig requestConfig;
 
-    private  Map<String, String> defaultHeader;
+    private Map<String, String> defaultHeader;
 
 
     public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
@@ -62,12 +62,10 @@ public class HttpClientService {
         if (mapIsEmpty(params)) {
             return url;
         }
-        URIBuilder builder = null;
+        URIBuilder builder;
         try {
             builder = new URIBuilder(url);
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                builder.setParameter(entry.getKey(), entry.getValue());
-            }
+            params.forEach(builder::setParameter);
             url = builder.build().toString();
         } catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
@@ -88,10 +86,8 @@ public class HttpClientService {
                 return request;
             }
             List<NameValuePair> parameters = new ArrayList<>(format.size());
-            format.forEach((k, v) -> {
-                parameters.add(new BasicNameValuePair(k, v));
-            });
-            request.setEntity(encode != null ? new UrlEncodedFormEntity(parameters, encode) : new UrlEncodedFormEntity(parameters));
+            format.forEach((k, v) -> parameters.add(new BasicNameValuePair(k, v)));
+            request.setEntity(new UrlEncodedFormEntity(parameters, encode));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -336,7 +332,7 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult execute(HttpRequestBase httpMethod, boolean logFlag) {
-        HttpResult result = null;
+        HttpResult result = new HttpResult();
         log.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
         try {
             CloseableHttpResponse response = httpClient.execute(httpMethod);
@@ -345,7 +341,6 @@ public class HttpClientService {
             if (logFlag) {
                 log.error(e.getMessage(), e);
             }
-            result = new HttpResult(e);
         }
         return result;
     }
@@ -353,13 +348,14 @@ public class HttpClientService {
 
     /**
      * 上传文件
+     *
      * @param fileUpLoadName         长传文件名称
      * @param file                   file
      * @param multipartEntityBuilder multipartEntityBuilder null时自动创建
      * @return MultipartEntityBuilder
      */
     public MultipartEntityBuilder buildFile(String fileUpLoadName, File file, MultipartEntityBuilder multipartEntityBuilder) {
-        if (multipartEntityBuilder != null) {
+        if (multipartEntityBuilder == null) {
             multipartEntityBuilder = MultipartEntityBuilder.create();
         }
         try {

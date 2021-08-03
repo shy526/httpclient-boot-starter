@@ -100,7 +100,12 @@ public class HttpResult implements Closeable {
         this.consume();
     }
 
-    public static Logger getLog() {
-        return log;
+
+    public Exception getError() {
+        return error;
+    }
+
+    public void setError(Exception error) {
+        this.error = error;
     }
 }
