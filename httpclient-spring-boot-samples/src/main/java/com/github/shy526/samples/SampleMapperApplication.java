@@ -33,7 +33,6 @@ public class SampleMapperApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("httpClientService = " + httpClientService);
-        httpClientService.get("xxxxxxxxxxxx");
     }
 
 

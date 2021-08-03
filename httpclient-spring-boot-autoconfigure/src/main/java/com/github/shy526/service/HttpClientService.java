@@ -32,7 +32,7 @@ public class HttpClientService {
 
     private final RequestConfig requestConfig;
 
-    private Map<String, String> defaultHeader;
+    private  Map<String, String> defaultHeader;
 
 
     public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
@@ -46,30 +46,8 @@ public class HttpClientService {
         this.defaultHeader = defaultHeader;
     }
 
-
-    /**
-     * 执行提交
-     *
-     * @param httpMethod httpMethod
-     * @return HttpResult
-     */
-    public HttpResult execute(HttpRequestBase httpMethod) {
-        return execute(httpMethod, true);
-    }
-
-    public HttpResult execute(HttpRequestBase httpMethod, boolean logFlag) {
-        HttpResult result = null;
-        log.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
-        try {
-            CloseableHttpResponse response = httpClient.execute(httpMethod);
-            result = new HttpResult(response);
-        } catch (Exception e) {
-            if (logFlag) {
-                log.error(e.getMessage(), e);
-            }
-            result = new HttpResult(e);
-        }
-        return result;
+    private boolean mapIsEmpty(Map<?, ?> map) {
+        return map == null || map.isEmpty();
     }
 
     /**
@@ -80,41 +58,21 @@ public class HttpClientService {
      * @return String
      */
     public String buildUrlParams(String url, Map<String, String> params) {
-        if (null != params) {
-            URIBuilder builder = null;
-            try {
-                builder = new URIBuilder(url);
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    builder.setParameter(entry.getKey(), entry.getValue());
-                }
-                url = builder.build().toString();
-            } catch (URISyntaxException e) {
-                log.error(e.getMessage(), e);
-            }
 
+        if (mapIsEmpty(params)) {
+            return url;
+        }
+        URIBuilder builder = null;
+        try {
+            builder = new URIBuilder(url);
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                builder.setParameter(entry.getKey(), entry.getValue());
+            }
+            url = builder.build().toString();
+        } catch (URISyntaxException e) {
+            log.error(e.getMessage(), e);
         }
         return url;
-    }
-
-
-    /**
-     * 设置请求头
-     *
-     * @param header  请求头
-     * @param request request
-     */
-    public HttpRequestBase httpSetHeader(Map<String, String> header, HttpRequestBase request) {
-        setHeader(request, defaultHeader);
-        setHeader(request, header);
-        return request;
-    }
-
-    private void setHeader(HttpRequestBase request, Map<String, String> header) {
-        if (null != header) {
-            header.forEach((k, v) -> {
-                request.setHeader(k, v);
-            });
-        }
     }
 
     /**
@@ -124,59 +82,49 @@ public class HttpClientService {
      * @param encode 字符编码
      * @return StringEntity
      */
-    public HttpRequestBase httpSetFormat(Map<String, String> format, String encode, HttpEntityEnclosingRequestBase requestBase) {
-        UrlEncodedFormEntity result = null;
+    public HttpRequestBase httpSetFormat(Map<String, String> format, String encode, HttpEntityEnclosingRequestBase request) {
         try {
-            if (format != null) {
-                List<NameValuePair> parameters = new ArrayList<NameValuePair>(0);
-                for (Map.Entry<String, String> entry : format.entrySet()) {
-                    parameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-                }
-                if (encode != null) {
-                    result = new UrlEncodedFormEntity(parameters, encode);
-                } else {
-                    result = new UrlEncodedFormEntity(parameters);
-                }
+            if (mapIsEmpty(format)) {
+                return request;
             }
-            requestBase.setEntity(result);
+            List<NameValuePair> parameters = new ArrayList<>(format.size());
+            format.forEach((k, v) -> {
+                parameters.add(new BasicNameValuePair(k, v));
+            });
+            request.setEntity(encode != null ? new UrlEncodedFormEntity(parameters, encode) : new UrlEncodedFormEntity(parameters));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
-        return requestBase;
+        return request;
     }
 
-
-    /**
-     * 生成使用代理的设置代理
-     *
-     * @param hostName 代理主机名
-     * @param port     代理端口
-     * @return Message
-     */
-    public HttpRequestBase buildProxy(String hostName, Integer port, HttpRequestBase httpRequestBase) {
-        HttpHost proxy = new HttpHost(hostName, port);
-        RequestConfig requestConfig = RequestConfig.custom().setProxy(proxy).build();
-        httpRequestBase.setConfig(requestConfig);
-        return httpRequestBase;
-    }
 
     /**
      * 设置 requestConfig
      *
-     * @param httpRequestBase 请求
+     * @param request 请求
+     * @param header  请求头
      * @return httpRequestBase
      */
-    public HttpRequestBase httpSetRequestConfig(HttpRequestBase httpRequestBase) {
-        httpRequestBase.setConfig(RequestConfig.copy(this.requestConfig).build());
-        return httpRequestBase;
+    public HttpRequestBase httpSetRequestConfigAndHeader(HttpRequestBase request, Map<String, String> header) {
+        request.setConfig(RequestConfig.copy(this.requestConfig).build());
+        setHeader(request, defaultHeader);
+        setHeader(request, header);
+        return request;
     }
 
+    private void setHeader(HttpRequestBase request, Map<String, String> header) {
+        if (mapIsEmpty(header)) {
+            return;
+        }
+        header.forEach(request::setHeader);
+
+    }
 
     public HttpRequestBase buildGet(String url, Map<String, String> params, Map<String, String> header) {
         url = this.buildUrlParams(url, params);
         HttpGet httpGet = new HttpGet(url);
-        return httpSetRequestConfig(httpSetHeader(header, httpGet));
+        return httpSetRequestConfigAndHeader(httpGet, header);
     }
 
     /**
@@ -223,9 +171,10 @@ public class HttpClientService {
      * @param encode encode
      * @return HttpRequestBase
      */
-    public HttpRequestBase buildPost(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
+    public HttpRequestBase buildPost(String url, Map<String, String> params, Map<String, String> header,
+                                     Map<String, String> format, String encode) {
         HttpPost httpPost = new HttpPost(buildUrlParams(url, params));
-        return httpSetRequestConfig(httpSetHeader(header, httpSetFormat(format, encode, httpPost)));
+        return httpSetRequestConfigAndHeader(httpSetFormat(format, encode, httpPost), header);
 
     }
 
@@ -239,7 +188,8 @@ public class HttpClientService {
      * @param encode 表单编码
      * @return HttpResult
      */
-    public HttpResult post(String url, Map<String, String> params, Map<String, String> header, Map<String, String> format, String encode) {
+    public HttpResult post(String url, Map<String, String> params, Map<String, String> header,
+                           Map<String, String> format, String encode) {
         return execute(buildPost(url, params, header, format, encode));
     }
 
@@ -288,6 +238,21 @@ public class HttpClientService {
         return post(url, null, null, null, null);
     }
 
+
+    /**
+     * 生成使用代理的设置代理
+     *
+     * @param hostName 代理主机名
+     * @param port     代理端口
+     * @return Message
+     */
+    public HttpRequestBase buildProxy(String hostName, Integer port, HttpRequestBase httpRequestBase) {
+        HttpHost proxy = new HttpHost(hostName, port);
+        RequestConfig requestConfig = RequestConfig.custom().setProxy(proxy).build();
+        httpRequestBase.setConfig(requestConfig);
+        return httpRequestBase;
+    }
+
     /**
      * 生成代理配置
      *
@@ -325,7 +290,8 @@ public class HttpClientService {
      * @param header   求情头
      * @return requestBase
      */
-    public HttpRequestBase buildProxyGet(String hostName, Integer port, String url, Map<String, String> params, Map<String, String> header) {
+    public HttpRequestBase buildProxyGet(String hostName, Integer port, String url, Map<String, String> params,
+                                         Map<String, String> header) {
         HttpRequestBase requestBase = buildGet(url, params, header);
         requestBase.setConfig(buildProxyConfig(hostName, port));
         return requestBase;
@@ -351,7 +317,42 @@ public class HttpClientService {
         return requestBase;
     }
 
+
     /**
+     * 执行提交
+     *
+     * @param httpMethod httpMethod
+     * @return HttpResult
+     */
+    public HttpResult execute(HttpRequestBase httpMethod) {
+        return execute(httpMethod, true);
+    }
+
+    /**
+     * 执行提交
+     *
+     * @param httpMethod httpMethod
+     * @param logFlag    logFlag
+     * @return HttpResult
+     */
+    public HttpResult execute(HttpRequestBase httpMethod, boolean logFlag) {
+        HttpResult result = null;
+        log.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpMethod);
+            result = new HttpResult(response);
+        } catch (Exception e) {
+            if (logFlag) {
+                log.error(e.getMessage(), e);
+            }
+            result = new HttpResult(e);
+        }
+        return result;
+    }
+
+
+    /**
+     * 上传文件
      * @param fileUpLoadName         长传文件名称
      * @param file                   file
      * @param multipartEntityBuilder multipartEntityBuilder null时自动创建
