@@ -27,7 +27,7 @@ public class SampleMapperApplication implements CommandLineRunner {
 
     @Autowired
     @Qualifier("myHttp")
-    private HttpClientService httpClientService2;
+    private HttpClientService myHttp;
 
 
     public static void main(String[] args) {
@@ -36,13 +36,15 @@ public class SampleMapperApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        System.out.println("myHttp = " + myHttp);
+        System.out.println("httpClientService = " + httpClientService);
         HashMap<String, String> params = new HashMap<>(2);
         params.put("ie", "UTF-8");
         params.put("wd", "111");
         String url = "https://www.baidu.com/s";
         httpClientService.get(url, params);
-        HttpRequestBase httpRequestBase = httpClientService.buildGet(url, params, null);
-        httpClientService.execute(httpRequestBase);
+        HttpRequestBase httpRequestBase = myHttp.buildGet(url, params, null);
+        myHttp.execute(httpRequestBase);
         String urlP = httpClientService.buildUrlParams(url, params);
         log.info(urlP);
     }
