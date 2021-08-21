@@ -332,12 +332,13 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult execute(HttpRequestBase httpMethod, boolean logFlag) {
-        HttpResult result = new HttpResult();
-        log.debug("执行{}请求，URL = {}", httpMethod.getMethod(), httpMethod.getURI());
+        HttpResult result = null;
+
         try {
-            CloseableHttpResponse response = httpClient.execute(httpMethod);
-            result = new HttpResult(response);
+            result = new HttpResult(httpClient.execute(httpMethod));
+            log.debug("{}:{} ", httpMethod.getMethod(), httpMethod.getURI());
         } catch (Exception e) {
+            result = new HttpResult(e);
             if (logFlag) {
                 log.error(e.getMessage(), e);
             }

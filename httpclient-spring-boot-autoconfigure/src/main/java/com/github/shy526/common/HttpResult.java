@@ -1,5 +1,7 @@
 package com.github.shy526.common;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,9 +20,12 @@ import java.io.IOException;
  */
 public class HttpResult implements Closeable {
     private final static Logger log = LoggerFactory.getLogger(HttpResult.class);
-    private Integer httpStatus=0;
+    @Getter
+    private Integer httpStatus = 0;
+    @Getter
     private CloseableHttpResponse response;
     private String entityStr;
+    @Getter
     private Exception error;
 
     public HttpResult() {
@@ -36,19 +41,6 @@ public class HttpResult implements Closeable {
             this.httpStatus = response.getStatusLine().getStatusCode();
         }
     }
-
-    public Integer getHttpStatus() {
-        return httpStatus;
-    }
-
-    public void setHttpStatus(Integer httpStatus) {
-        this.httpStatus = httpStatus;
-    }
-
-    public CloseableHttpResponse getResponse() {
-        return response;
-    }
-
 
     /**
      * 输出字符串 形式
@@ -98,14 +90,5 @@ public class HttpResult implements Closeable {
     @Override
     public void close() throws IOException {
         this.consume();
-    }
-
-
-    public Exception getError() {
-        return error;
-    }
-
-    public void setError(Exception error) {
-        this.error = error;
     }
 }
