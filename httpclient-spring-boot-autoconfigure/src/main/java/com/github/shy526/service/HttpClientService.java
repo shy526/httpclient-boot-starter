@@ -335,8 +335,14 @@ public class HttpClientService {
         HttpResult result = null;
 
         try {
-            result = new HttpResult(httpClient.execute(httpMethod));
-            log.debug("{}:{} ", httpMethod.getMethod(), httpMethod.getURI());
+            if (log.isDebugEnabled()) {
+                long startTime = System.currentTimeMillis();
+                result = new HttpResult(httpClient.execute(httpMethod));
+                log.debug("{}:{}({}ms)---->{} ", httpMethod.getMethod(),result.getHttpStatus(), System.currentTimeMillis() - startTime,
+                        httpMethod.getURI());
+            } else {
+                result = new HttpResult(httpClient.execute(httpMethod));
+            }
         } catch (Exception e) {
             result = new HttpResult(e);
             if (logFlag) {

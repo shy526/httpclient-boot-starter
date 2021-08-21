@@ -8,7 +8,7 @@ httpClientService:
   requestSentRetryEnabled: false
   header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
   closeTask:
-    name: httpClient2-close-task
+    name: httpClientService
     idleTime: 2000
     delay: 5000
 myHttp:
@@ -22,4 +22,6 @@ myHttp:
   requestSentRetryEnabled: false
 logging:
   level:
+    root: error
     com.github.shy526.autoconfigure.CloseExpiredConnectionsTask: info
+    com.github.shy526.service.HttpClientService: debug

@@ -40,16 +40,12 @@ public class SampleMapperApplication implements CommandLineRunner {
         params.put("ie", "UTF-8");
         params.put("wd", "111");
         String url = "https://www.baidu.com/s";
-        isOk(httpClientService.get(url, params));
+        httpClientService.get(url, params);
         HttpRequestBase httpRequestBase = httpClientService.buildGet(url, params, null);
-        isOk(httpClientService.execute(httpRequestBase));
+        httpClientService.execute(httpRequestBase);
         String urlP = httpClientService.buildUrlParams(url, params);
         log.info(urlP);
     }
 
-    private void isOk(HttpResult httpResult) {
-        String str = httpResult.getHttpStatus().equals(HttpStatus.SC_OK) ? "成功" : "失败";
-        log.info(str);
-    }
 
 }
