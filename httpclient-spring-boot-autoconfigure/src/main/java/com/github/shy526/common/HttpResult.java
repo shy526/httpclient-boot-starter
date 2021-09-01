@@ -1,8 +1,7 @@
 package com.github.shy526.common;
 
 import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.CharEncoding;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -62,7 +61,7 @@ public class HttpResult implements Closeable {
     }
 
     public String getEntityStr() {
-        return this.getEntityStr("UTF-8");
+        return this.getEntityStr(CharEncoding.UTF_8);
     }
 
     private void consumeHttpEntity(HttpEntity httpEntity) {
