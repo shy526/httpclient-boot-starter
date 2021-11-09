@@ -7,10 +7,6 @@ httpClientService:
   defaultMaxPerRoute: 100
   requestSentRetryEnabled: false
   header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
-  closeTask:
-    name: httpClientService
-    idleTime: 2000
-    delay: 5000
 myHttp:
   connectionRequestTimeout: 1000
   connectTimeout: 1000
