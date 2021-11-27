@@ -96,6 +96,27 @@ public class HttpClientService {
     /**
      * 执行POST请求
      *
+     * @param url url
+     * @return HttpResult
+     */
+    public HttpResult post(String url) {
+        return post(url, null, null, null, null);
+    }
+
+
+    /**
+     * 执行POST请求
+     *
+     * @param url url
+     * @return HttpResult
+     */
+    public HttpResult post(String url, Map<String, String> params) {
+        return post(url, params, null, null, null);
+    }
+
+    /**
+     * 执行POST请求
+     *
      * @param url    url
      * @param params 表单参数
      * @param header 请求头
@@ -114,32 +135,27 @@ public class HttpClientService {
      * @param encode 表单编码
      * @return HttpResult
      */
-    public HttpResult post(String url, Map<String, String> header, Map<String, String> format, String encode) {
+    public HttpResult postFormat(String url, Map<String, String> header, Map<String, String> format, String encode) {
         return post(url, null, header, format, encode);
     }
 
-    /**
-     * 执行POST请求
-     *
-     * @param url url
-     * @return HttpResult
-     */
-    public HttpResult post(String url, Map<String, String> params) {
-        return post(url, params, null, null, null);
-    }
 
     /**
      * 执行POST请求
      *
-     * @param url url
+     * @param url    url
+     * @param format 表单
+     * @param encode 表单编码
      * @return HttpResult
      */
-    public HttpResult post(String url) {
-        return post(url, null, null, null, null);
+    public HttpResult postFormat(String url, Map<String, String> format, String encode) {
+        return post(url, null, null, format, encode);
     }
+
 
     /**
      * 执行提交
+     *
      * @param requestPack requestPack
      * @return HttpResult
      */
@@ -155,8 +171,19 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult execute(RequestPack requestPack, boolean logFlag) {
+        return execute(requestPack.getRequestBase(), logFlag);
+    }
+
+
+    /**
+     * 执行提交
+     *
+     * @param requestBase requestBase
+     * @param logFlag     logFlag
+     * @return HttpResult
+     */
+    public HttpResult execute(HttpRequestBase requestBase, boolean logFlag) {
         HttpResult result = null;
-         HttpRequestBase requestBase = requestPack.getRequestBase();
         try {
             if (log.isDebugEnabled()) {
                 long startTime = System.currentTimeMillis();
