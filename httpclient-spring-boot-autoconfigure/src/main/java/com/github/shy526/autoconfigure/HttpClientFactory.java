@@ -16,16 +16,11 @@ import java.security.cert.X509Certificate;
 
 /**
  * HttpClientService 工厂类
+ *
  * @author shy526
  */
 public class HttpClientFactory {
 
-    public static CloseableHttpClient getHttpClient(HttpClientProperties properties) {
-        PoolingHttpClientConnectionManager manager = getHttpClientConnectionManager(properties);
-        SSLConnectionSocketFactory sslFactory = getSslConnectionSocketFactory();
-        HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory, properties);
-        return getCloseableHttpClient(httpBuilder);
-    }
 
     public static HttpClientService getHttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
         return new HttpClientService(httpClient, requestConfig);
@@ -36,6 +31,7 @@ public class HttpClientFactory {
     }
 
     public static PoolingHttpClientConnectionManager getHttpClientConnectionManager(HttpClientProperties properties) {
+
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager();
         //最大连接数
         httpClientConnectionManager.setMaxTotal(properties.getMaxTotal());
@@ -63,6 +59,13 @@ public class HttpClientFactory {
         return null;
     }
 
+    public static CloseableHttpClient getHttpClient(HttpClientProperties properties) {
+        PoolingHttpClientConnectionManager manager = getHttpClientConnectionManager(properties);
+        SSLConnectionSocketFactory sslFactory = getSslConnectionSocketFactory();
+        HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory, properties);
+        return httpBuilder.build();
+    }
+
     /**
      * 实例化连接池，设置连接池管理器。
      *
@@ -77,20 +80,10 @@ public class HttpClientFactory {
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setConnectionManager(poolManager);
         httpClientBuilder.setSSLSocketFactory(sslFactory);
-        if (!properties.getRequestSentRetryEnabled()) {
-            httpClientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
+        if (!properties.getAutomaticRetries()){
+            httpClientBuilder.disableAutomaticRetries();
         }
         return httpClientBuilder;
-    }
-
-    /**
-     * 注入连接池，用于获取httpClient
-     *
-     * @param httpClientBuilder httpClientBuilder
-     * @return CloseableHttpClient
-     */
-    public static CloseableHttpClient getCloseableHttpClient(HttpClientBuilder httpClientBuilder) {
-        return httpClientBuilder.build();
     }
 
 

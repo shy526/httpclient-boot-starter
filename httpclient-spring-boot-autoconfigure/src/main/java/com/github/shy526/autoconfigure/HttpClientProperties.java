@@ -51,8 +51,9 @@ public class HttpClientProperties implements Serializable {
 
     /**
      * 是否重试
+     * true 启用
      */
-    private Boolean requestSentRetryEnabled = Boolean.FALSE;
+    private Boolean automaticRetries = Boolean.TRUE;
 
 
     private CloseTask closeTask = new CloseTask();
@@ -64,12 +65,10 @@ public class HttpClientProperties implements Serializable {
 
         public CloseTask() {
         }
-        public CloseTask(String name, Integer idleTime, Long delay) {
+        public CloseTask(Integer idleTime, Long delay) {
             this.idleTime = idleTime;
-
             this.delay = delay;
         }
-        private String name = "closeTask";
 
         /**
          * 清理多少毫秒内部活动的链接

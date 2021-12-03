@@ -25,11 +25,11 @@ public class CloseExpiredConnectionsTask implements Runnable {
     }
 
     public static void start(PoolingHttpClientConnectionManager httpClientConnectionManager, HttpClientProperties.CloseTask closeTask) {
-        ThreadPoolUtils.getScheduledThreadPoolExecutor(closeTask.getName(), 1, true)
+        ThreadPoolUtils.getScheduledThreadPoolExecutor("scheduled-closeTask",1, true)
                 .scheduleWithFixedDelay(new CloseExpiredConnectionsTask(httpClientConnectionManager, closeTask),
                         INITIAL_DELAY, closeTask.getDelay()
                         , TimeUnit.MILLISECONDS);
-        log.info("start close connections:{}-->{}-->{}", closeTask.getName(), closeTask.getDelay(), closeTask.getIdleTime());
+        log.info("start close connections:{}-->{}", closeTask.getDelay(), closeTask.getIdleTime());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class CloseExpiredConnectionsTask implements Runnable {
         manager.closeExpiredConnections();
         //不活动的连接
         manager.closeIdleConnections(closeTask.getIdleTime(), TimeUnit.MILLISECONDS);
-        log.debug("{}-->{}-->{}", closeTask.getName(), closeTask.getDelay(), closeTask.getIdleTime());
+        log.debug("{}-->{}", closeTask.getDelay(), closeTask.getIdleTime());
     }
 }
 
