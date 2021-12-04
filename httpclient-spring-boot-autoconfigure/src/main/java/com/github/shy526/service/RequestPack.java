@@ -8,6 +8,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.UnsupportedEncodingException;
@@ -75,6 +76,22 @@ public class RequestPack {
             log.error(e.getMessage(), e);
         }
 
+        return this;
+    }
+
+    public RequestPack setBodyStr(String str) {
+        if (str == null || "".equals(str.trim())) {
+            return this;
+        }
+        if (!(requestBase instanceof HttpEntityEnclosingRequestBase)) {
+            log.error("request type error");
+            return this;
+        }
+        try {
+            ((HttpEntityEnclosingRequestBase) requestBase).setEntity(new StringEntity(str));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
         return this;
     }
 
