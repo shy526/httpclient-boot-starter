@@ -27,18 +27,10 @@ public class HttpClientService {
 
     private final RequestConfig requestConfig;
 
-    private Map<String, String> defaultHeader;
-
 
     public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig) {
         this.httpClient = httpClient;
         this.requestConfig = requestConfig;
-    }
-
-    public HttpClientService(CloseableHttpClient httpClient, RequestConfig requestConfig, Map<String, String> defaultHeader) {
-        this.httpClient = httpClient;
-        this.requestConfig = requestConfig;
-        this.defaultHeader = defaultHeader;
     }
 
     /**
@@ -51,7 +43,7 @@ public class HttpClientService {
      */
     public HttpResult get(String url, Map<String, String> params, Map<String, String> header) {
         RequestPack requestPack = RequestPack.produce(url, params, HttpGet.class)
-                .setRequestConfig(this.requestConfig).setHeader(defaultHeader).setHeader(header);
+                .setRequestConfig(this.requestConfig).setHeader(header);
         return this.execute(requestPack);
     }
 
@@ -87,9 +79,9 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params, Map<String, String> header,
-                           Map<String, String> format, String encode,String bodyStr) {
+                           Map<String, String> format, String encode, String bodyStr) {
         RequestPack requestPack = RequestPack.produce(url, params, HttpPost.class).setRequestConfig(requestConfig).setFormat(format, encode)
-                .setHeader(defaultHeader).setHeader(header).setBodyStr(bodyStr);
+                .setHeader(header).setBodyStr(bodyStr);
         return execute(requestPack);
     }
 
@@ -100,7 +92,7 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult post(String url) {
-        return post(url, null, null, null, null,null);
+        return post(url, null, null, null, null, null);
     }
 
 
@@ -111,7 +103,7 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params) {
-        return post(url, params, null, null, null,null);
+        return post(url, params, null, null, null, null);
     }
 
     /**
@@ -123,7 +115,7 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult post(String url, Map<String, String> params, Map<String, String> header) {
-        return post(url, params, header, null, null,null);
+        return post(url, params, header, null, null, null);
     }
 
     /**
@@ -136,7 +128,7 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult postFormat(String url, Map<String, String> header, Map<String, String> format, String encode) {
-        return post(url, null, header, format, encode,null);
+        return post(url, null, header, format, encode, null);
     }
 
 
@@ -149,13 +141,13 @@ public class HttpClientService {
      * @return HttpResult
      */
     public HttpResult postFormat(String url, Map<String, String> format, String encode) {
-        return post(url, null, null, format, encode,null);
+        return post(url, null, null, format, encode, null);
     }
 
     /**
      * 执行POST请求
      *
-     * @param url    url
+     * @param url     url
      * @param bodyStr body
      * @return HttpResult
      */
@@ -167,11 +159,11 @@ public class HttpClientService {
     /**
      * 执行POST请求
      *
-     * @param url    url
+     * @param url     url
      * @param bodyStr body
      * @return HttpResult
      */
-    public HttpResult postStr(String url,  Map<String, String> header,String bodyStr) {
+    public HttpResult postStr(String url, Map<String, String> header, String bodyStr) {
         return post(url, null, header, null, null, bodyStr);
     }
 

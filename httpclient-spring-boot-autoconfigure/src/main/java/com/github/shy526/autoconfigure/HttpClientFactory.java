@@ -8,11 +8,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * HttpClientService 工厂类
@@ -27,7 +31,7 @@ public class HttpClientFactory {
     }
 
     public static HttpClientService getHttpClientService(HttpClientProperties properties) {
-        return new HttpClientService(getHttpClient(properties), getRequestConfig(properties), properties.getHeader());
+        return new HttpClientService(getHttpClient(properties), getRequestConfig(properties));
     }
 
     public static PoolingHttpClientConnectionManager getHttpClientConnectionManager(HttpClientProperties properties) {
@@ -63,6 +67,15 @@ public class HttpClientFactory {
         PoolingHttpClientConnectionManager manager = getHttpClientConnectionManager(properties);
         SSLConnectionSocketFactory sslFactory = getSslConnectionSocketFactory();
         HttpClientBuilder httpBuilder = getHttpClientBuilder(manager, sslFactory, properties);
+        Map<String, String> header = properties.getHeader();
+        if (header != null) {
+            List<BasicHeader> headers = new ArrayList<>();
+            header.forEach((k, v) -> {
+                headers.add(new BasicHeader(k, v));
+            });
+            //设置默认请求头
+            httpBuilder.setDefaultHeaders(headers);
+        }
         return httpBuilder.build();
     }
 
@@ -80,7 +93,7 @@ public class HttpClientFactory {
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setConnectionManager(poolManager);
         httpClientBuilder.setSSLSocketFactory(sslFactory);
-        if (!properties.getAutomaticRetries()){
+        if (!properties.getAutomaticRetries()) {
             httpClientBuilder.disableAutomaticRetries();
         }
         return httpClientBuilder;
@@ -101,6 +114,7 @@ public class HttpClientFactory {
         RequestConfig.Builder builder = RequestConfig.custom();
         return builder.setConnectTimeout(httpClientProperties.getConnectTimeout())
                 .setConnectionRequestTimeout(httpClientProperties.getConnectionRequestTimeout())
-                .setSocketTimeout(httpClientProperties.getSocketTimeout()).build();
+                .setSocketTimeout(httpClientProperties.getSocketTimeout())
+                .build();
     }
 }

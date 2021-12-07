@@ -5,7 +5,7 @@ httpClientService:
   validateAfterInactivity: 2000
   maxTotal: 200
   defaultMaxPerRoute: 100
-  requestSentRetryEnabled: false
+  automaticRetries: false
   header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
 myHttp:
   connectionRequestTimeout: 1000
@@ -15,7 +15,7 @@ myHttp:
   maxTotal: 200
   defaultMaxPerRoute: 100
   header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
-  requestSentRetryEnabled: false
+  automaticRetries: false
 logging:
   level:
     root: error
