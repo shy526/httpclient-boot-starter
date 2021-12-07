@@ -6,6 +6,7 @@ import org.apache.commons.codec.CharEncoding;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.util.EntityUtils;
 import org.springframework.util.StringUtils;
 
@@ -26,16 +27,20 @@ public class HttpResult implements Closeable {
     private String entityStr;
     @Getter
     private Exception error;
+    @Getter
+    private HttpRequestBase request;
 
     public HttpResult() {
     }
 
-    public HttpResult(Exception error) {
+    public HttpResult(Exception error,HttpRequestBase request ) {
         this.error = error;
+        this.request = request;
     }
 
-    public HttpResult(CloseableHttpResponse response) {
+    public HttpResult(CloseableHttpResponse response,HttpRequestBase request) {
         this.response = response;
+        this.request = request;
         if (this.response != null) {
             this.httpStatus = response.getStatusLine().getStatusCode();
         }

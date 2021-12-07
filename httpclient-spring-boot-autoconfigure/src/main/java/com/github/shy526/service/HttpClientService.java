@@ -201,14 +201,14 @@ public class HttpClientService {
         try {
             if (log.isDebugEnabled()) {
                 long startTime = System.currentTimeMillis();
-                result = new HttpResult(httpClient.execute(requestBase));
+                result = new HttpResult(httpClient.execute(requestBase),requestBase);
                 log.debug("{}:{}({}ms)---->{} ", requestBase.getMethod(), result.getHttpStatus(), System.currentTimeMillis() - startTime,
                         requestBase.getURI());
             } else {
-                result = new HttpResult(httpClient.execute(requestBase));
+                result = new HttpResult(httpClient.execute(requestBase),requestBase);
             }
         } catch (Exception e) {
-            result = new HttpResult(e);
+            result = new HttpResult(e,requestBase);
             if (logFlag) {
                 log.error(e.getMessage(), e);
             }
