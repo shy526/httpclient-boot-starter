@@ -29,11 +29,9 @@ httpClientService:
   #请求头
   header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
   #是否重试
-  requestSentRetryEnabled: false
+  automaticRetries: false
   closeTask:
-    name: httpClient2-close-task
     idleTime: 4000
-    initialDelay: 4000
     delay: 4000
 ```
 
@@ -48,11 +46,9 @@ httpClientService:
   validateAfterInactivity: 2000
   maxTotal: 200
   defaultMaxPerRoute: 100
-  requestSentRetryEnabled: false
+  automaticRetries: false
   closeTask:
-    name: httpClient2-close-task
     idleTime: 4000
-    initialDelay: 4000
     delay: 4000
 myHttp:
   connectionRequestTimeout: 1
@@ -61,11 +57,9 @@ myHttp:
   validateAfterInactivity: 2000
   maxTotal: 200
   defaultMaxPerRoute: 100
-  requestSentRetryEnabled: false
+  automaticRetries: false
   closeTask:
-    name: httpClient2-close-task
     idleTime: 4000
-    initialDelay: 4000
     delay: 4000
 ```
 
