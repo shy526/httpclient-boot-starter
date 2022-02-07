@@ -1,5 +1,7 @@
 package com.github.shy526.autoconfigure;
 
+import com.github.shy526.http.HttpClientProperties;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

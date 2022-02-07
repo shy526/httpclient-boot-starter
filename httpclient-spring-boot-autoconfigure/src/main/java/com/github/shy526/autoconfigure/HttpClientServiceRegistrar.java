@@ -1,6 +1,8 @@
 package com.github.shy526.autoconfigure;
 
-import com.github.shy526.service.HttpClientService;
+import com.github.shy526.http.HttpClientFactory;
+import com.github.shy526.http.HttpClientProperties;
+import com.github.shy526.http.HttpClientService;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;

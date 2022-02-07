@@ -1,12 +1,10 @@
 package com.github.shy526.samples;
 
 
-import com.github.shy526.common.HttpResult;
-import com.github.shy526.service.HttpClientService;
+import com.github.shy526.http.HttpClientService;
+import com.github.shy526.http.HttpResult;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,14 +16,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StringUtils;
 
-import javax.print.DocFlavor;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.jsoup.nodes.Document.OutputSettings.Syntax.html;
 
 /**
  * @author shy526
