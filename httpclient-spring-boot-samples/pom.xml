@@ -34,7 +34,12 @@
             <artifactId>jsoup</artifactId>
             <version>1.14.3</version>
         </dependency>
-
+        <!--支持中文识别，并且开源和提供全套的训练工具-->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.1.0</version>
+        </dependency>
     </dependencies>
 
 </project>
