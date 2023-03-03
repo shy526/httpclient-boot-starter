@@ -122,7 +122,7 @@ public class SampleMapperApplication implements CommandLineRunner {
 
 
     /**
-     * 获取字符串
+     * 获取网络字符串
      * @param  url
      * @return str
      */
