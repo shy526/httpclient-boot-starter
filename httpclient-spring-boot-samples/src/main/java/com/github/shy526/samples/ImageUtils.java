@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.lang.ref.Reference;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -134,7 +134,7 @@ public class ImageUtils {
                 for (int y = 0; y < kernel.length; y++) {
                     for (int x = 0; x < kernel[y].length; x++) {
                         int temp = kernel[y][x];
-                        if (j + x >= width || i + y >= height||temp==WHITE) {
+                        if (j + x >= width || i + y >= height || temp == WHITE) {
                             continue;
                         }
                         if (pixelMatrix[i + y][j + x] != temp) {
@@ -157,6 +157,130 @@ public class ImageUtils {
         return pixelMatrix2image(pixelMatrix);
     }
 
+
+    public static BufferedImage expand(BufferedImage bufferedImage, int[][] kernel) {
+        int[][] pixelMatrix = image2pixelMatrix(bufferedImage, null);
+        int height = pixelMatrix.length;
+        int width = pixelMatrix[0].length;
+        Set<String> corrodeList = new HashSet<>();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int source = pixelMatrix[i][j];
+                if (source == WHITE) {
+                    continue;
+                }
+                for (int y = 0; y < kernel.length; y++) {
+                    for (int x = 0; x < kernel[y].length; x++) {
+                        int temp = kernel[y][x];
+                        if (j + x >= width || i + y >= height || temp == WHITE) {
+                            continue;
+                        }
+                        if (pixelMatrix[i + y][j + x] != temp) {
+                            corrodeList.add((i + y) + "," + (j + x));
+                        }
+                    }
+                }
+            }
+        }
+        for (String str : corrodeList) {
+            String[] split = str.split(",");
+            pixelMatrix[Integer.parseInt(split[0])][Integer.parseInt(split[1])] = BLACK;
+        }
+        return pixelMatrix2image(pixelMatrix);
+    }
+
+    public static List<BufferedImage> raySubImage(BufferedImage image) {
+        List<BufferedImage> result = new ArrayList<>();
+
+        int startX = 0;
+        Set<String> check = new HashSet<String>();
+
+        for (; true; ) {
+            Set<String> blackPoint = new HashSet<String>();
+            int[] startPoint = collide(image, startX, BLACK);
+            startX = startPoint[0];
+            int startY = startPoint[1];
+            if (startX == Integer.MAX_VALUE) {
+                break;
+            }
+            spread(image, startX, startY, check,blackPoint);
+            int maxX=0;
+            for (String pointStr : blackPoint) {
+                String[] point = pointStr.split(",");
+                int x = Integer.parseInt(point[0]);
+                int y = Integer.parseInt(point[1]);
+                maxX=Math.max(maxX,x);
+            }
+            image.setRGB(startX,startY,Color.GREEN.getRGB());
+            startX=maxX+1;
+
+        }
+        // ImageUtils.saveImage(Paths.get("D:\\codeup\\httpclient-boot-starter\\httpclient-spring-boot-samples\\src\\main\\resources").resolve("test.png"), image);
+        return result;
+    }
+
+    private static void spread(BufferedImage image,int startX, int startY, Set<String> check,Set<String> blackPoint) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        List<String> scopePoint = scope(startX, startY, height, width);
+        System.out.println(startX+","+startY+":"+ scopePoint);
+        for (String pointStr : scopePoint) {
+            String[] point = pointStr.split(",");
+            int x = Integer.parseInt(point[0]);
+            int y = Integer.parseInt(point[1]);
+            int rgb = image.getRGB(x, y);
+            if (!check.contains(pointStr) && rgb == BLACK) {
+                check.add(pointStr);
+                blackPoint.add(pointStr);
+                spread(image,x, y, check,blackPoint);
+                image.setRGB(x,y,Color.yellow.getRGB());
+            }else {
+                check.add(pointStr);
+            }
+        }
+    }
+
+    private static List<String> scope(int startX, int startY, int height, int width) {
+        List<String> pointList = new ArrayList<>();
+        int upY = startY - 1;
+        if (upY >= 0 || upY < height) {
+            pointList.add(startX + "," + upY);
+        }
+        int downY = startY + 1;
+        if (downY >= 0 || downY < height) {
+            pointList.add(startX + "," + downY);
+        }
+        int leftX = startX - 1;
+        if (leftX >= 0 || leftX < width) {
+            pointList.add(leftX + "," + startY);
+        }
+        int rightX = startX + 1;
+        if (rightX >= 0 || leftX < width) {
+            pointList.add(rightX + "," + startY);
+        }
+        return pointList;
+    }
+
+    private static int[] collide(BufferedImage image, int startX, int target) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        for (int y = 0; y < height; y++) {
+            for (int x = startX; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                if (rgb == target) {
+                    if (minX > x) {
+                        minX = x;
+                        minY = y;
+                    }
+                    break;
+                }
+            }
+        }
+        return new int[]{minX, minY};
+    }
+
     public static void main(String[] args) {
         Path rootPath = Paths.get("D:\\codeup\\httpclient-boot-starter\\httpclient-spring-boot-samples\\src\\main\\resources");
         String fileName = "img.png";
@@ -165,14 +289,24 @@ public class ImageUtils {
         BufferedImage gray = ImageUtils.gray(image);
         saveImage(rootPath.resolve("gray.png"), gray);
         BufferedImage binary = ImageUtils.binary(image, 78, 165);
+        //  BufferedImage binary = ImageUtils.binary(image, 101, 215);
         saveImage(rootPath.resolve("binary.png"), binary);
         BufferedImage corrode = corrode(binary, new int[][]{
-                {BLACK,WHITE },
-                {BLACK,WHITE }
+                {BLACK, WHITE},
+                {BLACK, WHITE}
         });
         corrode = corrode(corrode, new int[][]{
-                {BLACK,BLACK }
+                {BLACK, BLACK}
         });
         saveImage(rootPath.resolve("corrode.png"), corrode);
+        BufferedImage expand = ImageUtils.expand(corrode, new int[][]{
+                {BLACK, BLACK},
+                {BLACK, BLACK}
+        });
+        saveImage(rootPath.resolve("expand.png"), expand);
+        List<BufferedImage> bufferedImages = ImageUtils.raySubImage(expand);
+        for (int i = 0; i < bufferedImages.size(); i++) {
+            saveImage(rootPath.resolve("sub-" + i + ".png"), bufferedImages.get(i));
+        }
     }
 }
