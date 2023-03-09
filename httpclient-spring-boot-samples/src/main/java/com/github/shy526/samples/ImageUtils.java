@@ -123,72 +123,88 @@ public class ImageUtils {
         return null;
     }
 
-    public static BufferedImage corrode(BufferedImage bufferedImage, int[][] kernel) {
+    /**
+     * 不符合模型的腐蚀图片
+     *
+     * @param bufferedImage 原图
+     * @param kernel        模型
+     * @param orig          模型远点
+     * @return 腐蚀后的图
+     */
+    public static BufferedImage corrode(BufferedImage bufferedImage, int[][] kernel, int[] orig) {
         int[][] pixelMatrix = image2pixelMatrix(bufferedImage, null);
         int height = pixelMatrix.length;
         int width = pixelMatrix[0].length;
-        List<String> corrodeList = new ArrayList<>();
+        Set<Integer[]> corrodePoint = new HashSet<>();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                boolean flag = false;
-                for (int y = 0; y < kernel.length; y++) {
-                    for (int x = 0; x < kernel[y].length; x++) {
-                        int temp = kernel[y][x];
-                        if (j + x >= width || i + y >= height || temp == WHITE) {
-                            continue;
-                        }
-                        if (pixelMatrix[i + y][j + x] != temp) {
-                            flag = true;
-                        }
-                    }
-                }
-                if (flag) {
-                    if (pixelMatrix[i][j] != WHITE) {
-                        corrodeList.add(i + "," + j);
-                    }
-
+                List<Integer[]> result = checkKernel(kernel, pixelMatrix, i, j, orig);
+                if (!result.isEmpty()) {
+                    corrodePoint.add(new Integer[]{i, j});
                 }
             }
         }
-        for (String str : corrodeList) {
-            String[] split = str.split(",");
-            pixelMatrix[Integer.parseInt(split[0])][Integer.parseInt(split[1])] = WHITE;
+        for (Integer[] point : corrodePoint) {
+            pixelMatrix[point[0]][point[1]] = WHITE;
         }
         return pixelMatrix2image(pixelMatrix);
     }
 
-
-    public static BufferedImage expand(BufferedImage bufferedImage, int[][] kernel) {
-        int[][] pixelMatrix = image2pixelMatrix(bufferedImage, null);
+    private static List<Integer[]> checkKernel(int[][] kernel, int[][] pixelMatrix, int sourceY, int sourceX, int[] orig) {
         int height = pixelMatrix.length;
         int width = pixelMatrix[0].length;
-        Set<String> corrodeList = new HashSet<>();
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                int source = pixelMatrix[i][j];
-                if (source == WHITE) {
+        int origX = orig[1];
+        int origY = orig[0];
+        List<Integer[]> result = new ArrayList<>();
+        if (pixelMatrix[sourceY][sourceX] == WHITE) {
+            return result;
+        }
+        for (int y = 0; y < kernel.length; y++) {
+            for (int x = 0; x < kernel[y].length; x++) {
+                int tempColor = kernel[y][x];
+                if (tempColor == WHITE) {
                     continue;
                 }
-                for (int y = 0; y < kernel.length; y++) {
-                    for (int x = 0; x < kernel[y].length; x++) {
-                        int temp = kernel[y][x];
-                        if (j + x >= width || i + y >= height || temp == WHITE) {
-                            continue;
-                        }
-                        if (pixelMatrix[i + y][j + x] != temp) {
-                            corrodeList.add((i + y) + "," + (j + x));
-                        }
-                    }
+                int offsetX = x - origX;
+                int offsetY = y - origY;
+                int tempY = sourceY + offsetY;
+                int tempX = sourceX + offsetX;
+                if (tempX < 0 || tempX >= width || tempY < 0 || tempY >= height) {
+                    return result;
+                }
+                int color = pixelMatrix[tempY][tempX];
+                if (color != tempColor) {
+                    result.add(new Integer[]{tempY, tempX});
                 }
             }
         }
-        for (String str : corrodeList) {
-            String[] split = str.split(",");
-            pixelMatrix[Integer.parseInt(split[0])][Integer.parseInt(split[1])] = BLACK;
+        return result;
+    }
+
+
+    public static BufferedImage expand(BufferedImage bufferedImage, int[][] kernel, int[] orig) {
+        int[][] pixelMatrix = image2pixelMatrix(bufferedImage, null);
+        int height = pixelMatrix.length;
+        int width = pixelMatrix[0].length;
+        List<Integer[]> result = new ArrayList<>();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                result.addAll(checkKernel(kernel, pixelMatrix, i, j, orig));
+
+            }
+        }
+        for (Integer[] point : result) {
+            pixelMatrix[point[0]][point[1]] = BLACK;
         }
         return pixelMatrix2image(pixelMatrix);
     }
 
+    /**
+     * 利用射线+扩散切取文字主题
+     *
+     * @param image 原图
+     * @return 切割的图片
+     */
     public static List<BufferedImage> raySubImage(BufferedImage image) {
         List<BufferedImage> result = new ArrayList<>();
 
@@ -203,27 +219,65 @@ public class ImageUtils {
             if (startX == Integer.MAX_VALUE) {
                 break;
             }
-            spread(image, startX, startY, check,blackPoint);
-            int maxX=0;
+            spread(image, startX, startY, check, blackPoint);
+            int maxX = 0;
+            int maxY = 0;
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
             for (String pointStr : blackPoint) {
                 String[] point = pointStr.split(",");
                 int x = Integer.parseInt(point[0]);
                 int y = Integer.parseInt(point[1]);
-                maxX=Math.max(maxX,x);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
             }
-            image.setRGB(startX,startY,Color.GREEN.getRGB());
-            startX=maxX+1;
+            image.setRGB(startX, startY, Color.GREEN.getRGB());
+            startX = maxX + 1;
+            int offset = 30;
+            int width = maxX - minX + 2 + offset;
 
+            int height = maxY - minY + 2 + offset;
+            Set<String> newPoint = new HashSet<String>();
+            for (String pointStr : blackPoint) {
+                String[] point = pointStr.split(",");
+                int x = Integer.parseInt(point[0]);
+                int y = Integer.parseInt(point[1]);
+                int newX = x - minX + offset / 2;
+                int newY = y - minY + offset / 2;
+                newPoint.add(newX + "," + newY);
+            }
+            BufferedImage subImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if (newPoint.contains(x + "," + y)) {
+                        subImage.setRGB(x, y, BLACK);
+                    } else {
+                        subImage.setRGB(x, y, WHITE);
+                    }
+
+                }
+            }
+            result.add(subImage);
         }
-        // ImageUtils.saveImage(Paths.get("D:\\codeup\\httpclient-boot-starter\\httpclient-spring-boot-samples\\src\\main\\resources").resolve("test.png"), image);
         return result;
     }
 
-    private static void spread(BufferedImage image,int startX, int startY, Set<String> check,Set<String> blackPoint) {
+
+    /**
+     * 扩散选取莫个主题
+     *
+     * @param image      原题
+     * @param startX     起始点位
+     * @param startY     起始点位
+     * @param check      检查过的点
+     * @param blackPoint 目标点
+     */
+    private static void spread(BufferedImage image, int startX, int startY, Set<String> check, Set<String> blackPoint) {
         int width = image.getWidth();
         int height = image.getHeight();
         List<String> scopePoint = scope(startX, startY, height, width);
-        System.out.println(startX+","+startY+":"+ scopePoint);
         for (String pointStr : scopePoint) {
             String[] point = pointStr.split(",");
             int x = Integer.parseInt(point[0]);
@@ -232,35 +286,52 @@ public class ImageUtils {
             if (!check.contains(pointStr) && rgb == BLACK) {
                 check.add(pointStr);
                 blackPoint.add(pointStr);
-                spread(image,x, y, check,blackPoint);
-                image.setRGB(x,y,Color.yellow.getRGB());
-            }else {
+                spread(image, x, y, check, blackPoint);
+                image.setRGB(x, y, Color.yellow.getRGB());
+            } else {
                 check.add(pointStr);
             }
         }
     }
 
+    /**
+     * 获取莫个点四周的点
+     *
+     * @param startX 初始点位
+     * @param startY 初始点位
+     * @param height 高
+     * @param width  宽
+     * @return 四周的点
+     */
     private static List<String> scope(int startX, int startY, int height, int width) {
         List<String> pointList = new ArrayList<>();
         int upY = startY - 1;
-        if (upY >= 0 || upY < height) {
+        if (upY >= 0 && upY < height) {
             pointList.add(startX + "," + upY);
         }
         int downY = startY + 1;
-        if (downY >= 0 || downY < height) {
+        if (downY >= 0 && downY < height) {
             pointList.add(startX + "," + downY);
         }
         int leftX = startX - 1;
-        if (leftX >= 0 || leftX < width) {
+        if (leftX >= 0 && leftX < width) {
             pointList.add(leftX + "," + startY);
         }
         int rightX = startX + 1;
-        if (rightX >= 0 || leftX < width) {
+        if (rightX >= 0 && rightX < width) {
             pointList.add(rightX + "," + startY);
         }
         return pointList;
     }
 
+    /**
+     * 射线横向碰撞检测
+     *
+     * @param image  图片
+     * @param startX 初始x
+     * @param target 目标颜色
+     * @return [x, y]
+     */
     private static int[] collide(BufferedImage image, int startX, int target) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -282,31 +353,34 @@ public class ImageUtils {
     }
 
     public static void main(String[] args) {
-        Path rootPath = Paths.get("D:\\codeup\\httpclient-boot-starter\\httpclient-spring-boot-samples\\src\\main\\resources");
-        String fileName = "img.png";
+        Path rootPath = Paths.get("httpclient-spring-boot-samples/src/main/resources");
+        String fileName = "img3.png";
         Path imagePath = rootPath.resolve(fileName);
         BufferedImage image = ImageUtils.readImage(imagePath);
         BufferedImage gray = ImageUtils.gray(image);
         saveImage(rootPath.resolve("gray.png"), gray);
-        BufferedImage binary = ImageUtils.binary(image, 78, 165);
+       // BufferedImage binary = ImageUtils.binary(image, 68, 180);
+        BufferedImage binary = ImageUtils.binary(image, 200, 250);
+
         //  BufferedImage binary = ImageUtils.binary(image, 101, 215);
         saveImage(rootPath.resolve("binary.png"), binary);
         BufferedImage corrode = corrode(binary, new int[][]{
                 {BLACK, WHITE},
                 {BLACK, WHITE}
-        });
+        }, new int[]{0, 0});
         corrode = corrode(corrode, new int[][]{
                 {BLACK, BLACK}
-        });
+        }, new int[]{0, 0});
         saveImage(rootPath.resolve("corrode.png"), corrode);
-        BufferedImage expand = ImageUtils.expand(corrode, new int[][]{
-                {BLACK, BLACK},
-                {BLACK, BLACK}
-        });
+/*        BufferedImage expand = ImageUtils.expand(corrode, new int[][]{
+                {BLACK, BLACK, BLACK},
+                {BLACK, BLACK, BLACK},
+                {BLACK, BLACK, BLACK}
+        }, new int[]{1, 1});
         saveImage(rootPath.resolve("expand.png"), expand);
         List<BufferedImage> bufferedImages = ImageUtils.raySubImage(expand);
         for (int i = 0; i < bufferedImages.size(); i++) {
             saveImage(rootPath.resolve("sub-" + i + ".png"), bufferedImages.get(i));
-        }
+        }*/
     }
 }
