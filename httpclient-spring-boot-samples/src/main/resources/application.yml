@@ -6,7 +6,7 @@ httpClientService:
   maxTotal: 200
   defaultMaxPerRoute: 100
   automaticRetries: false
-  header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
+  header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67" }
 myHttp:
   connectionRequestTimeout: 1000
   connectTimeout: 1000
@@ -14,7 +14,7 @@ myHttp:
   validateAfterInactivity: 2000
   maxTotal: 200
   defaultMaxPerRoute: 100
-  header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36" }
+  header: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67" }
   automaticRetries: false
 logging:
   level:
