@@ -78,19 +78,13 @@ public class SampleMapperApplication implements CommandLineRunner {
             String id = item.getString("id");
             JSONObject itemInfo = item.getJSONObject("itemInfo");
             String quality = itemInfo.getString("qualityName");
+            String marketHashName = item.getString("marketHashName");
+            String hashName = codec.encode(marketHashName, CharEncoding.UTF_8).replaceAll("\\+", "%20");
 
-            String hashName = codec.encode(item.getString("marketHashName"), CharEncoding.UTF_8).replaceAll("\\+", "%20");
-            String steamUrl = "https://steamcommunity.com/market/listings/570/" + hashName;
+            //steam 售卖页面
+            String steamUrl = "https://steamcommunity.com/market/listings/570/%s" ;
 
-            HttpResult steamResult = httpClientService.get(steamUrl);
-            String entityStr2 = steamResult.getEntityStr();
-
-            System.out.println(steamUrl);
-            if (!StringUtils.isNotEmpty(entityStr2)) {
-                System.out.println(steamUrl+":"+steamResult.getHttpStatus());
-                return;
-            }
-            Document steamHtml = Jsoup.parse(entityStr2);
+            Document steamHtml = getDocument(steamUrl, hashName);
             Elements script = steamHtml.body().select("script");
             String steamId = null;
             for (Element element : script) {
@@ -103,13 +97,13 @@ public class SampleMapperApplication implements CommandLineRunner {
                     steamId = matcher.group(1);
                 }
             }
+            //获取在售卖的信息
             String steamBuyUrl = "https://steamcommunity.com/market/itemordershistogram?country=CN&language=schinese&currency=23&item_nameid=%s&two_factor=0";
-            HttpResult steamBuyResult = httpClientService.get(String.format(steamBuyUrl, steamId));
-            JSONObject jsonObject = JSON.parseObject(steamBuyResult.getEntityStr());
-            if (jsonObject != null) {
-                JSONArray buArray = jsonObject.getJSONArray("buy_order_graph");
+            JSONObject buySell = getJSONObject(steamBuyUrl, steamId);
+            if (buySell != null) {
+                JSONArray buArray = buySell.getJSONArray("buy_order_graph");
                 ItemPrice buyPrice = calculatePrice(buArray, "0", "1");
-                JSONArray sellArray = jsonObject.getJSONArray("sell_order_graph");
+                JSONArray sellArray = buySell.getJSONArray("sell_order_graph");
                 ItemPrice sellPrice = calculatePrice(buArray, "0", "1");
             } else {
                 String sellUrl = "https://steamcommunity.com/market/listings/570/%s/render/?query=&start=0&count=100&country=CN&language=schinese&currency=23";
@@ -129,13 +123,11 @@ public class SampleMapperApplication implements CommandLineRunner {
 
             //出售
             String sellUrl = "https://www.c5game.com/napi/trade/steamtrade/sga/sell/v3/list?itemId=%s&page=1&limit=1000";
-            HttpResult sellResult = httpClientService.get(String.format(sellUrl, id));
-            JSONArray sellList = JSONObject.parseObject(sellResult.getEntityStr()).getJSONObject("data").getJSONArray("list");
+            JSONArray sellList = getJSONObject(sellUrl, id).getJSONObject("data").getJSONArray("list");
             ItemPrice c5SellPrice = calculatePrice(sellList, "cnyPrice", null);
             //收购
             String buyUrl = "https://www.c5game.com/napi/trade/steamtrade/sga/purchase/v2/list?itemId=%s&page=1&limit=1000";
-            HttpResult buyResult = httpClientService.get(String.format(buyUrl, id));
-            JSONArray buyList = JSONObject.parseObject(sellResult.getEntityStr()).getJSONObject("data").getJSONArray("list");
+            JSONArray buyList =getJSONObject(buyUrl, id).getJSONObject("data").getJSONArray("list");
             ItemPrice c5buyPrice = calculatePrice(sellList, "cnyPrice", "remainNum");
             Jewelry jewelry = new Jewelry();
             jewelry.setId(id);
@@ -155,6 +147,52 @@ public class SampleMapperApplication implements CommandLineRunner {
             System.out.println(jewelry);
         }
 
+    }
+
+    /**
+     * 解析网页
+     *
+     * @param urlFormat
+     * @param params
+     * @return
+     */
+    private Document getDocument(String urlFormat, String... params) {
+        String url = String.format(urlFormat, params);
+        String entityStr = "";
+        try {
+            HttpResult httpResult = httpClientService.get(url);
+            if (httpResult.getHttpStatus() != 200) {
+                log.error(url + " -> " + httpResult.getHttpStatus());
+            }
+            String temp = httpResult.getEntityStr();
+            entityStr = temp == null ? entityStr : temp;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return Jsoup.parse(entityStr);
+    }
+
+
+    /**
+     * 解析网页
+     * @param urlFormat
+     * @param params
+     * @return
+     */
+    private JSONObject getJSONObject(String urlFormat, String... params) {
+        String url = String.format(urlFormat, params);
+        String entityStr = "";
+        try {
+            HttpResult httpResult = httpClientService.get(url);
+            if (httpResult.getHttpStatus() != 200) {
+                log.error(url + " -> " + httpResult.getHttpStatus());
+            }
+            String temp = httpResult.getEntityStr();
+            entityStr = temp == null ? entityStr : temp;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return JSON.parseObject(entityStr);
     }
 
     private ItemPrice calculatePrice(JSONArray prices, String priceKey, String numKey) {
